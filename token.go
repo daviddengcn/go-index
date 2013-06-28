@@ -22,10 +22,11 @@ const (
 )
 
 /*
-	Tokenize spearates a rune sequence into tokens defining a RuneType function.
+	Tokenize spearates a rune sequence into some tokens defining a RuneType
+	function.
 */
 func Tokenize(runeType func(last, current rune) RuneType, in io.RuneReader,
-		out func(token []byte)) {
+		output func(token []byte) error) error {
 	last := rune(0)
 	var outBuf bytes.Buffer
 	for {
@@ -37,7 +38,10 @@ func Tokenize(runeType func(last, current rune) RuneType, in io.RuneReader,
 		if tp == TokenStart || tp == TokenSep {
 			// finish current
 			if outBuf.Len() > 0 {
-				out(outBuf.Bytes())
+				err = output(outBuf.Bytes())
+				if err != nil {
+					return err
+				}
 				outBuf.Reset()
 			}
 		}
@@ -50,7 +54,7 @@ func Tokenize(runeType func(last, current rune) RuneType, in io.RuneReader,
 
 	// finish last, if any
 	if outBuf.Len() > 0 {
-		out(outBuf.Bytes())
+		return output(outBuf.Bytes())
 	}
-	return
+	return nil
 }
