@@ -1,26 +1,24 @@
 package index
 
 import (
-	"bytes"
+	"github.com/daviddengcn/go-villa"
 	"testing"
 	"unicode"
-	"github.com/daviddengcn/go-villa"
-//	"fmt"
 )
 
 func TestMarkText(t *testing.T) {
 	text := "Hello myFriend"
-	
-	var outBuf bytes.Buffer
+
+	var outBuf villa.ByteSlice
 	err := MarkText([]byte(text), func(last, current rune) RuneType {
 		if unicode.IsSpace(current) {
 			return TokenSep
 		}
-		
+
 		if current >= 'A' && current <= 'Z' {
 			return TokenStart
 		}
-		
+
 		return TokenBody
 	}, func(token []byte) bool {
 		return true
@@ -33,12 +31,12 @@ func TestMarkText(t *testing.T) {
 		outBuf.WriteRune('>')
 		return nil
 	})
-	
+
 	if err != nil {
 		t.Errorf("MarkText failed: %v", err)
 	}
-	
-	marked := outBuf.String()
-	
+
+	marked := string(outBuf)
+
 	villa.AssertEquals(t, "marked", marked, "<Hello> <my><Friend>")
 }

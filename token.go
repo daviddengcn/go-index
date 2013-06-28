@@ -15,7 +15,7 @@ const (
 	  |        \________.> TokenSep (spaces)
 	  `-> TokenStart
 	*/
-	
+
 	TokenSep   RuneType = iota // token breaker, should ignored
 	TokenStart                 // start of a new token, end current token, if any
 	TokenBody                  // body of a token. It's ok for the first rune to be a TokenBody
@@ -26,7 +26,7 @@ const (
 	function.
 */
 func Tokenize(runeType func(last, current rune) RuneType, in io.RuneReader,
-		output func(token []byte) error) error {
+	output func(token []byte) error) error {
 	last := rune(0)
 	var outBuf bytes.Buffer
 	for {

@@ -4,12 +4,11 @@ import (
 	"unicode/utf8"
 )
 
-
 /*
 	MarkText seperat text into separator parts and tokens, mark token if a token
 	needMark.
 */
-func MarkText(text []byte, runeType func(last, current rune) RuneType, 
+func MarkText(text []byte, runeType func(last, current rune) RuneType,
 	needMark func([]byte) bool, output, mark func([]byte) error) error {
 	if len(text) == 0 {
 		return nil
@@ -20,7 +19,7 @@ func MarkText(text []byte, runeType func(last, current rune) RuneType,
 		// text is always non-empty here.
 		// r, sz are current rune, and its size. tp is r's RuneType.
 		p := 0
-		
+
 		// seperator part, if any
 		for tp == TokenSep {
 			// step over this rune
@@ -39,12 +38,12 @@ func MarkText(text []byte, runeType func(last, current rune) RuneType,
 			if err := output(text[:p]); err != nil {
 				return err
 			}
-			
+
 			if p == len(text) {
 				// text ends with a separator
 				break
 			}
-			
+
 			// skip
 			text, p = text[p:], 0
 		}
@@ -53,7 +52,7 @@ func MarkText(text []byte, runeType func(last, current rune) RuneType,
 		// word part
 		for p == 0 || tp == TokenBody {
 			p += sz
-			
+
 			if p < len(text) {
 				lastR := r
 				r, sz = utf8.DecodeRune(text[p:])
@@ -63,7 +62,7 @@ func MarkText(text []byte, runeType func(last, current rune) RuneType,
 			}
 		}
 		// tp == TokenStart/TokenSep/text is over
-		
+
 		token := text[:p]
 		// output a token, mark if needed
 		if needMark(token) {
@@ -75,7 +74,7 @@ func MarkText(text []byte, runeType func(last, current rune) RuneType,
 				return err
 			}
 		}
-		
+
 		if p == len(text) {
 			// text ends with a token
 			break
