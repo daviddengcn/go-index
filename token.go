@@ -5,14 +5,23 @@ import (
 	"io"
 )
 
+// A Tokenizer interface can tokenize text into tokens.
+type Tokenizer interface {
+	/*
+		Tokenize separates a rune sequence into some tokens. If output returns
+		an non-nil error, tokenizing ceased, and the error is returned.
+	*/
+	Tokenize(in io.RuneReader, output func(token []byte) error) error
+}
+
 type RuneType int
 
 const (
 	/*
 	    ,----> TokenBody
 	   ////
-	  Hello my  friend
-	  |        \________.> TokenSep (spaces)
+	  Hello  my  friend
+	  |     \___\________.> TokenSep (spaces)
 	  `-> TokenStart
 	*/
 
@@ -22,11 +31,11 @@ const (
 )
 
 /*
-	Tokenize spearates a rune sequence into some tokens defining a RuneType
+	Tokenize separates a rune sequence into some tokens defining a RuneType
 	function.
 */
 func Tokenize(runeType func(last, current rune) RuneType, in io.RuneReader,
-	output func(token []byte) error) error {
+		output func(token []byte) error) error {
 	last := rune(0)
 	var outBuf bytes.Buffer
 	for {
@@ -57,4 +66,20 @@ func Tokenize(runeType func(last, current rune) RuneType, in io.RuneReader,
 		return output(outBuf.Bytes())
 	}
 	return nil
+}
+
+func TokenizeBySeparators(seps string, in io.RuneReader, 
+		output func(token []byte) error) error {
+	isSap := make(map[rune]bool)
+	for _, r := range seps {
+		isSap[r] = true
+	}
+	
+	return Tokenize(func(last, current rune) RuneType {
+		if isSap[current] {
+			return TokenSep
+		}
+		
+		return TokenBody
+	}, in, output)
 }

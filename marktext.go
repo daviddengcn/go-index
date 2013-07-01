@@ -5,8 +5,9 @@ import (
 )
 
 /*
-	MarkText seperat text into separator parts and tokens, mark token if a token
-	needMark.
+	MarkText seperates text into separator parts and tokens, mark a token if the 
+	token needMark. output and mark functions are called for unmarked/marked
+	texts.
 */
 func MarkText(text []byte, runeType func(last, current rune) RuneType,
 	needMark func([]byte) bool, output, mark func([]byte) error) error {
