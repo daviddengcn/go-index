@@ -5,7 +5,7 @@ import (
 )
 
 /*
-	MarkText seperates text into separator parts and tokens, mark a token if the 
+	MarkText seperates text into separator parts and tokens, mark a token if the
 	token needMark. output and mark functions are called for unmarked/marked
 	texts.
 */

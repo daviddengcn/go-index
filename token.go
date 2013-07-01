@@ -35,7 +35,7 @@ const (
 	function.
 */
 func Tokenize(runeType func(last, current rune) RuneType, in io.RuneReader,
-		output func(token []byte) error) error {
+	output func(token []byte) error) error {
 	last := rune(0)
 	var outBuf bytes.Buffer
 	for {
@@ -68,18 +68,18 @@ func Tokenize(runeType func(last, current rune) RuneType, in io.RuneReader,
 	return nil
 }
 
-func TokenizeBySeparators(seps string, in io.RuneReader, 
-		output func(token []byte) error) error {
+func TokenizeBySeparators(seps string, in io.RuneReader,
+	output func(token []byte) error) error {
 	isSap := make(map[rune]bool)
 	for _, r := range seps {
 		isSap[r] = true
 	}
-	
+
 	return Tokenize(func(last, current rune) RuneType {
 		if isSap[current] {
 			return TokenSep
 		}
-		
+
 		return TokenBody
 	}, in, output)
 }
