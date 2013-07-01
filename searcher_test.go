@@ -33,7 +33,7 @@ func TestTokenSetSearcher(t *testing.T) {
 		fields := map[string]villa.StrSet{
 			"text": tokens,
 		}
-		sch.IndexDoc(fields, &DocInfo{
+		sch.AddDoc(fields, &DocInfo{
 			A: fmt.Sprintf("%d - %s", i+1, DOCS[i][0]),
 		})
 	}
@@ -97,9 +97,9 @@ func BenchmarkTokenSetSearcher_1(b *testing.B) {
 	ts1 := map[string]villa.StrSet{"text": villa.NewStrSet("A", "B")}
 	for i := 0; i < 100000; i++ {
 		if rand.Intn(2) == 0 {
-			sch.IndexDoc(ts1, i)
+			sch.AddDoc(ts1, i)
 		} else {
-			sch.IndexDoc(ts0, i)
+			sch.AddDoc(ts0, i)
 		}
 	}
 	//log.Printf("1: %d", b.N)
@@ -119,9 +119,9 @@ func BenchmarkTokenSetSearcher_2(b *testing.B) {
 	ts1 := map[string]villa.StrSet{"text": villa.NewStrSet("A", "B")}
 	for i := 0; i < 100000; i++ {
 		if rand.Intn(2) == 0 {
-			sch.IndexDoc(ts1, i)
+			sch.AddDoc(ts1, i)
 		} else {
-			sch.IndexDoc(ts0, i)
+			sch.AddDoc(ts0, i)
 		}
 	}
 	//log.Printf("2: %d", b.N)
@@ -142,9 +142,9 @@ func BenchmarkTokenSetSearcher_10(b *testing.B) {
 	ts1 := map[string]villa.StrSet{"text": villa.NewStrSet("A", "B")}
 	for i := 0; i < 100000; i++ {
 		if rand.Intn(10) == 0 {
-			sch.IndexDoc(ts1, i)
+			sch.AddDoc(ts1, i)
 		} else {
-			sch.IndexDoc(ts0, i)
+			sch.AddDoc(ts0, i)
 		}
 	}
 	//log.Printf("10: %d", b.N)
@@ -165,9 +165,9 @@ func BenchmarkTokenSetSearcher_1000(b *testing.B) {
 	ts1 := map[string]villa.StrSet{"text": villa.NewStrSet("A", "B")}
 	for i := 0; i < 100000; i++ {
 		if rand.Intn(1000) == 0 {
-			sch.IndexDoc(ts1, i)
+			sch.AddDoc(ts1, i)
 		} else {
-			sch.IndexDoc(ts0, i)
+			sch.AddDoc(ts0, i)
 		}
 	}
 	//log.Printf("1000: %d", b.N)
@@ -188,9 +188,9 @@ func BenchmarkTokenSetSearcher_100(b *testing.B) {
 	ts1 := map[string]villa.StrSet{"text": villa.NewStrSet("A", "B")}
 	for i := 0; i < 100000; i++ {
 		if rand.Intn(100) == 0 {
-			sch.IndexDoc(ts1, i)
+			sch.AddDoc(ts1, i)
 		} else {
-			sch.IndexDoc(ts0, i)
+			sch.AddDoc(ts0, i)
 		}
 	}
 	//log.Printf("100: %d", b.N)

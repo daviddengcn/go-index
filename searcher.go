@@ -28,8 +28,9 @@ type TokenSetSearcher struct {
 }
 
 // IndexDoc indexes a document to the searcher. It returns a local doc id.
-func (s *TokenSetSearcher) IndexDoc(fields map[string]villa.StrSet,
+func (s *TokenSetSearcher) AddDoc(fields map[string]villa.StrSet,
 	data interface{}) int32 {
+		
 	docID := int32(len(s.docs))
 	s.docs = append(s.docs, data)
 	if s.inverted == nil {
