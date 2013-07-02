@@ -63,7 +63,7 @@ func (s *TokenSetSearcher) Delete(docID int32) error {
 
 // SingleFieldQuery returns a map[strig]villa.StrSet (same type as query int
 // Search method) with a single field.
-func SingleFieldQuery(field string, tokens []string) map[string]villa.StrSet {
+func SingleFieldQuery(field string, tokens ...string) map[string]villa.StrSet {
 	return map[string]villa.StrSet{
 		field: villa.NewStrSet(tokens...),
 	}

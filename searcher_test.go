@@ -48,17 +48,17 @@ func TestTokenSetSearcher(t *testing.T) {
 		return nil
 	}
 	docs, infos = nil, nil
-	sch.Search(SingleFieldQuery("text", []string{"my"}), collector)
+	sch.Search(SingleFieldQuery("text", "my"), collector)
 	fmt.Println("Docs:", docs, "Infos", infos)
 	villa.AssertEquals(t, "len(docs)(my)", len(docs), 2)
 
 	docs, infos = nil, nil
-	sch.Search(SingleFieldQuery("text", []string{"my", "dog"}), collector)
+	sch.Search(SingleFieldQuery("text", "my", "dog"), collector)
 	fmt.Println("Docs:", docs, "Infos", infos)
 	villa.AssertEquals(t, "len(docs)(my dog)", len(docs), 1)
 
 	docs, infos = nil, nil
-	sch.Search(SingleFieldQuery("text", []string{"friend"}), collector)
+	sch.Search(SingleFieldQuery("text", "friend"), collector)
 	fmt.Println("Docs:", docs, "Infos", infos)
 	villa.AssertEquals(t, "len(docs)(friend)", len(docs), 1)
 
@@ -71,14 +71,12 @@ func TestTokenSetSearcher(t *testing.T) {
 
 	var b villa.ByteSlice
 	gob.Register(&DocInfo{})
-	err := sch.Save(&b)
-	if err != nil {
+	if err := sch.Save(&b); err != nil {
 		t.Errorf("Save failed: %v", err)
 	}
 	log.Printf("%d bytes written", len(b))
 
-	err = sch.Load(&b)
-	if err != nil {
+	if err := sch.Load(&b); err != nil {
 		t.Errorf("Load failed: %v", err)
 	}
 	log.Printf("%d docs loaded!", sch.DocCount())
