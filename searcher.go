@@ -196,9 +196,9 @@ mainloop:
 				}
 				docID, matched, i = invLists[mnI][idxs[mnI]], 1, mnI1
 			} else {
-				mnI++
-				if mnI == n {
-					mnI = 0
+				i ++
+				if i == n {
+					i = 0
 				}
 			}
 		}
