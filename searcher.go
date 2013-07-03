@@ -150,11 +150,9 @@ mainloop:
 			// estimate skip linearly
 			skip := int(docID-invList[idxs[i]]) * len(invList) / N
 			newIdx := idxs[i] + skip
-			if newIdx >= len(invList) || invList[newIdx] > docID {
-				// goes too far, if skip
-				break
+			if newIdx < len(invList) && invList[newIdx] <= docID {
+				idxs[i] = newIdx
 			}
-			idxs[i] = newIdx
 		}
 		// search for docID
 		for invList[idxs[i]] < docID {

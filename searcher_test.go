@@ -13,16 +13,10 @@ type DocInfo struct {
 	A string
 }
 
-func TestTokenSetSearcher(t *testing.T) {
-	DOCS := [][]string{
-		{"To friends", "hello my friend"},
-		{"To dogs", "GO go go, my dog"},
-	}
-
+func indexDocs(docs [][2]string) *TokenSetSearcher {
 	sch := &TokenSetSearcher{}
-
-	for i := range DOCS {
-		text := DOCS[i][1]
+	for i := range docs {
+		text := docs[i][1]
 		var tokens villa.StrSet
 		TokenizeBySeparators(" ,", villa.NewPByteSlice([]byte(text)),
 			func(token []byte) error {
@@ -34,9 +28,20 @@ func TestTokenSetSearcher(t *testing.T) {
 			"text": tokens,
 		}
 		sch.AddDoc(fields, &DocInfo{
-			A: fmt.Sprintf("%d - %s", i+1, DOCS[i][0]),
+			A: fmt.Sprintf("%d - %s", i+1, docs[i][0]),
 		})
 	}
+	
+	return sch
+}
+
+func TestTokenSetSearcher(t *testing.T) {
+	DOCS := [][2]string{
+		{"To friends", "hello my friend"},
+		{"To dogs", "GO go go, my dog"},
+	}
+
+	sch := indexDocs(DOCS)
 
 	var docs []int32
 	var infos []*DocInfo
@@ -49,24 +54,24 @@ func TestTokenSetSearcher(t *testing.T) {
 	}
 	docs, infos = nil, nil
 	sch.Search(SingleFieldQuery("text", "my"), collector)
-	fmt.Println("Docs:", docs, "Infos", infos)
+	//fmt.Println("Docs:", docs, "Infos", infos)
 	villa.AssertEquals(t, "len(docs)(my)", len(docs), 2)
 
 	docs, infos = nil, nil
 	sch.Search(SingleFieldQuery("text", "my", "dog"), collector)
-	fmt.Println("Docs:", docs, "Infos", infos)
+	//fmt.Println("Docs:", docs, "Infos", infos)
 	villa.AssertEquals(t, "len(docs)(my dog)", len(docs), 1)
 
 	docs, infos = nil, nil
 	sch.Search(SingleFieldQuery("text", "friend"), collector)
-	fmt.Println("Docs:", docs, "Infos", infos)
+	//fmt.Println("Docs:", docs, "Infos", infos)
 	villa.AssertEquals(t, "len(docs)(friend)", len(docs), 1)
 
 	sch.Delete(0)
 
 	docs, infos = nil, nil
 	sch.Search(nil, collector)
-	fmt.Println("Docs:", docs, "Infos", infos)
+	//fmt.Println("Docs:", docs, "Infos", infos)
 	villa.AssertEquals(t, "len(docs)()", len(docs), 1)
 
 	var b villa.ByteSlice
@@ -199,4 +204,52 @@ func BenchmarkTokenSetSearcher_100(b *testing.B) {
 			return nil
 		})
 	}
+}
+
+func TestTokenSetSearcher_bug1(t *testing.T) {
+	/*
+	DOCS := [][2]string {
+		{" 0", "a b c"},
+		{" 1", "a"},
+		{" 2", "a c"},
+		{" 3", "a"},
+		{" 4", "a c"},
+		{" 5", "a"},
+		{" 6", "a"},
+		{" 7", "a"},
+		{" 8", "a b c"},
+		{" 9", "a"},
+		{"10", "a c"},
+		{"11", "a c"},
+		{"12", "a c"},
+		{"13", "a"},
+		{"14", "a c"},
+		{"15", "a"},
+	}
+	*/
+	DOCS := [][2]string {
+		{" 0", "a b c"},
+		{" 1", "a"},
+		{" 2", "a"},
+		{" 3", "a"},
+		{" 4", "a b c"},
+		{" 5", "a c"},
+		{" 6", "a c"},
+		{" 7", "a"},
+		{" 8", "a c"},
+	}
+	sch := indexDocs(DOCS)
+
+	var docs []int32
+	var infos []*DocInfo
+	collector := func(docID int32, data interface{}) error {
+		docs = append(docs, docID)
+		docInfo := data.(*DocInfo)
+		infos = append(infos, docInfo)
+		fmt.Printf("Doc: %d, %+v\n", docID, docInfo)
+		return nil
+	}
+	
+	sch.Search(SingleFieldQuery("text", "c", "b"), collector)
+	villa.AssertStringEquals(t, "docs", docs, "[0 4]")
 }
