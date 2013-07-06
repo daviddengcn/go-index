@@ -14,27 +14,28 @@ type Tokenizer interface {
 	Tokenize(in io.RuneReader, output func(token []byte) error) error
 }
 
+/*
+    ,----> TokenBody
+   ////
+  Hello  my  friend
+  |     \___\________.> TokenSep (spaces)
+  `-> TokenStart
+*/
 type RuneType int
 
 const (
-	/*
-	    ,----> TokenBody
-	   ////
-	  Hello  my  friend
-	  |     \___\________.> TokenSep (spaces)
-	  `-> TokenStart
-	*/
-
 	TokenSep   RuneType = iota // token breaker, should ignored
 	TokenStart                 // start of a new token, end current token, if any
 	TokenBody                  // body of a token. It's ok for the first rune to be a TokenBody
 )
 
+type RuneTypeFunc func(last, current rune) RuneType
+
 /*
 	Tokenize separates a rune sequence into some tokens defining a RuneType
 	function.
 */
-func Tokenize(runeType func(last, current rune) RuneType, in io.RuneReader,
+func Tokenize(runeType RuneTypeFunc, in io.RuneReader,
 	output func(token []byte) error) error {
 	last := rune(0)
 	var outBuf bytes.Buffer
@@ -82,4 +83,18 @@ func TokenizeBySeparators(seps string, in io.RuneReader,
 
 		return TokenBody
 	}, in, output)
+}
+
+/*
+	SeparatorFRuneTypeF returns a rune-type function (used in func Tokenize)
+	which can splits text by separators defined by func IsSeparator.
+*/
+func SeparatorFRuneTypeFunc(IsSeparator func(r rune) bool) RuneTypeFunc {
+	return func(last, current rune) RuneType {
+		if IsSeparator(current) {
+			return TokenSep
+		}
+
+		return TokenBody
+	}
 }
