@@ -7,7 +7,6 @@ import (
 	"sort"
 )
 
-
 // TokenIndexer is main used to compute outlinks from inlinks.
 type TokenIndexer struct {
 	// key -> sorted tokens
@@ -36,27 +35,27 @@ func addToSortedString(l []string, el string) []string {
 // are updated.
 func (ti *TokenIndexer) Put(id string, tokens villa.StrSet) {
 	oldTokens, _ := ti.idTokens[id]
-	
+
 	newTokens := tokens.Elements()
 	sort.Strings(newTokens)
-	
+
 	toRemove, toAdd := villa.StrValueCompare.DiffSlicePair(oldTokens, newTokens)
-	
+
 	if ti.tokenIds == nil {
 		ti.tokenIds = make(map[string][]string)
 	}
-	
+
 	for _, token := range toRemove {
 		ti.tokenIds[token] = removeFromSortedString(ti.tokenIds[token], id)
 	}
 	for _, token := range toAdd {
 		ti.tokenIds[token] = addToSortedString(ti.tokenIds[token], id)
 	}
-	
+
 	if ti.idTokens == nil {
 		ti.idTokens = make(map[string][]string)
 	}
-	
+
 	ti.idTokens[id] = newTokens
 }
 

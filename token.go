@@ -29,6 +29,7 @@ const (
 	TokenBody                  // body of a token. It's ok for the first rune to be a TokenBody
 )
 
+// the type of func for determine RuneType give last and current runes.
 type RuneTypeFunc func(last, current rune) RuneType
 
 /*

@@ -31,7 +31,7 @@ func indexDocs(docs [][2]string) *TokenSetSearcher {
 			A: fmt.Sprintf("%d - %s", i+1, docs[i][0]),
 		})
 	}
-	
+
 	return sch
 }
 
@@ -208,26 +208,26 @@ func BenchmarkTokenSetSearcher_100(b *testing.B) {
 
 func TestTokenSetSearcher_bug1(t *testing.T) {
 	/*
-	DOCS := [][2]string {
-		{" 0", "a b c"},
-		{" 1", "a"},
-		{" 2", "a c"},
-		{" 3", "a"},
-		{" 4", "a c"},
-		{" 5", "a"},
-		{" 6", "a"},
-		{" 7", "a"},
-		{" 8", "a b c"},
-		{" 9", "a"},
-		{"10", "a c"},
-		{"11", "a c"},
-		{"12", "a c"},
-		{"13", "a"},
-		{"14", "a c"},
-		{"15", "a"},
-	}
+		DOCS := [][2]string {
+			{" 0", "a b c"},
+			{" 1", "a"},
+			{" 2", "a c"},
+			{" 3", "a"},
+			{" 4", "a c"},
+			{" 5", "a"},
+			{" 6", "a"},
+			{" 7", "a"},
+			{" 8", "a b c"},
+			{" 9", "a"},
+			{"10", "a c"},
+			{"11", "a c"},
+			{"12", "a c"},
+			{"13", "a"},
+			{"14", "a c"},
+			{"15", "a"},
+		}
 	*/
-	DOCS := [][2]string {
+	DOCS := [][2]string{
 		{" 0", "a b c"},
 		{" 1", "a"},
 		{" 2", "a"},
@@ -249,7 +249,7 @@ func TestTokenSetSearcher_bug1(t *testing.T) {
 		fmt.Printf("Doc: %d, %+v\n", docID, docInfo)
 		return nil
 	}
-	
+
 	sch.Search(SingleFieldQuery("text", "c", "b"), collector)
 	villa.AssertStringEquals(t, "docs", docs, "[0 4]")
 }
