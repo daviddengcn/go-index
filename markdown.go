@@ -18,51 +18,55 @@ type MarkdownData struct {
 	Links []Link // all links
 }
 
+type markdownData struct {
+	*MarkdownData
+}
+
 // block-level callbacks
-func (*MarkdownData) BlockCode(out *bytes.Buffer, text []byte, lang string) {}
-func (*MarkdownData) BlockQuote(out *bytes.Buffer, text []byte)             {}
-func (*MarkdownData) BlockHtml(out *bytes.Buffer, text []byte)              {}
-func (md *MarkdownData) Header(out *bytes.Buffer, text func() bool, level int) {
+func (*markdownData) BlockCode(out *bytes.Buffer, text []byte, lang string) {}
+func (*markdownData) BlockQuote(out *bytes.Buffer, text []byte)             {}
+func (*markdownData) BlockHtml(out *bytes.Buffer, text []byte)              {}
+func (md *markdownData) Header(out *bytes.Buffer, text func() bool, level int) {
 	if text() {
 		out.WriteRune('\n')
 	}
 }
-func (*MarkdownData) HRule(out *bytes.Buffer) {}
-func (*MarkdownData) List(out *bytes.Buffer, text func() bool, flags int) {
+func (*markdownData) HRule(out *bytes.Buffer) {}
+func (*markdownData) List(out *bytes.Buffer, text func() bool, flags int) {
 	if text() {
 		out.WriteRune('\n')
 	}
 }
-func (md *MarkdownData) ListItem(out *bytes.Buffer, text []byte, flags int) {
+func (md *markdownData) ListItem(out *bytes.Buffer, text []byte, flags int) {
 	out.WriteRune('\n')
 	out.Write(text)
 	out.WriteRune('\n')
 }
-func (md *MarkdownData) Paragraph(out *bytes.Buffer, text func() bool) {
+func (md *markdownData) Paragraph(out *bytes.Buffer, text func() bool) {
 	if text() {
 		out.WriteRune('\n')
 	}
 }
-func (*MarkdownData) Table(out *bytes.Buffer, header []byte, body []byte, columnData []int) {}
-func (*MarkdownData) TableRow(out *bytes.Buffer, text []byte)                               {}
-func (*MarkdownData) TableCell(out *bytes.Buffer, text []byte, flags int)                   {}
+func (*markdownData) Table(out *bytes.Buffer, header []byte, body []byte, columnData []int) {}
+func (*markdownData) TableRow(out *bytes.Buffer, text []byte)                               {}
+func (*markdownData) TableCell(out *bytes.Buffer, text []byte, flags int)                   {}
 
 // Span-level callbacks
-func (md *MarkdownData) AutoLink(out *bytes.Buffer, link []byte, kind int) {
+func (md *markdownData) AutoLink(out *bytes.Buffer, link []byte, kind int) {
 	md.Links = append(md.Links, Link{
 		URL: string(link),
 	})
 }
-func (*MarkdownData) CodeSpan(out *bytes.Buffer, text []byte) {}
-func (*MarkdownData) DoubleEmphasis(out *bytes.Buffer, text []byte) {
+func (*markdownData) CodeSpan(out *bytes.Buffer, text []byte) {}
+func (*markdownData) DoubleEmphasis(out *bytes.Buffer, text []byte) {
 	out.Write(text)
 }
-func (*MarkdownData) Emphasis(out *bytes.Buffer, text []byte) {
+func (*markdownData) Emphasis(out *bytes.Buffer, text []byte) {
 	out.Write(text)
 }
-func (*MarkdownData) Image(out *bytes.Buffer, link []byte, title []byte, alt []byte) {}
-func (md *MarkdownData) LineBreak(out *bytes.Buffer)                                 {}
-func (md *MarkdownData) Link(out *bytes.Buffer, link []byte, title []byte, content []byte) {
+func (*markdownData) Image(out *bytes.Buffer, link []byte, title []byte, alt []byte) {}
+func (*markdownData) LineBreak(out *bytes.Buffer)                                 {}
+func (md *markdownData) Link(out *bytes.Buffer, link []byte, title []byte, content []byte) {
 	out.Write(content)
 	md.Links = append(md.Links, Link{
 		URL:    string(link),
@@ -70,29 +74,29 @@ func (md *MarkdownData) Link(out *bytes.Buffer, link []byte, title []byte, conte
 		Title:  string(title),
 	})
 }
-func (*MarkdownData) RawHtmlTag(out *bytes.Buffer, tag []byte) {}
-func (*MarkdownData) TripleEmphasis(out *bytes.Buffer, text []byte) {
+func (*markdownData) RawHtmlTag(out *bytes.Buffer, tag []byte) {}
+func (*markdownData) TripleEmphasis(out *bytes.Buffer, text []byte) {
 	out.Write(text)
 }
-func (*MarkdownData) StrikeThrough(out *bytes.Buffer, text []byte) {}
+func (*markdownData) StrikeThrough(out *bytes.Buffer, text []byte) {}
 
 // Low-level callbacks
-func (*MarkdownData) Entity(out *bytes.Buffer, entity []byte) {}
-func (md *MarkdownData) NormalText(out *bytes.Buffer, text []byte) {
-	// out.Write(bytes.Replace(text, []byte("\n"), []byte(" "), -1))
+func (*markdownData) Entity(out *bytes.Buffer, entity []byte) {}
+func (*markdownData) NormalText(out *bytes.Buffer, text []byte) {
 	out.Write(text)
 }
 
 // Header and footer
-func (*MarkdownData) DocumentHeader(out *bytes.Buffer) {}
-func (*MarkdownData) DocumentFooter(out *bytes.Buffer) {}
+func (*markdownData) DocumentHeader(out *bytes.Buffer) {}
+func (*markdownData) DocumentFooter(out *bytes.Buffer) {}
 
 // ParseMarkdown parses the markdown source and returns the plain text and link
 // information.
 func ParseMarkdown(src []byte) *MarkdownData {
 	md := &MarkdownData{}
 
-	md.Text = blackfriday.Markdown(src, md, blackfriday.EXTENSION_AUTOLINK)
+	md.Text = blackfriday.Markdown(src, &markdownData{md},
+		blackfriday.EXTENSION_AUTOLINK)
 
 	return md
 }
