@@ -49,7 +49,7 @@ func TestTokenSetSearcher(t *testing.T) {
 		docs = append(docs, docID)
 		docInfo := data.(*DocInfo)
 		infos = append(infos, docInfo)
-		fmt.Printf("Doc: %d, %+v\n", docID, docInfo)
+		t.Logf("Doc: %d, %+v\n", docID, docInfo)
 		return nil
 	}
 	docs, infos = nil, nil
@@ -67,6 +67,9 @@ func TestTokenSetSearcher(t *testing.T) {
 	//fmt.Println("Docs:", docs, "Infos", infos)
 	villa.AssertEquals(t, "len(docs)(friend)", len(docs), 1)
 
+	docs = sch.TokenDocList("text", "my")
+	villa.AssertStringEquals(t, "text:To", docs, "[0 1]")
+	
 	sch.Delete(0)
 
 	docs, infos = nil, nil
@@ -79,16 +82,16 @@ func TestTokenSetSearcher(t *testing.T) {
 	if err := sch.Save(&b); err != nil {
 		t.Errorf("Save failed: %v", err)
 	}
-	log.Printf("%d bytes written", len(b))
+	t.Logf("%d bytes written", len(b))
 
 	if err := sch.Load(&b); err != nil {
 		t.Errorf("Load failed: %v", err)
 	}
-	log.Printf("%d docs loaded!", sch.DocCount())
+	t.Logf("%d docs loaded!", sch.DocCount())
 
 	docs, infos = nil, nil
 	sch.Search(nil, collector)
-	fmt.Println("Docs:", docs, "Infos", infos)
+	t.Logf("Docs:", docs, "Infos", infos)
 	villa.AssertEquals(t, "len(docs)()", len(docs), 1)
 }
 
@@ -207,26 +210,6 @@ func BenchmarkTokenSetSearcher_100(b *testing.B) {
 }
 
 func TestTokenSetSearcher_bug1(t *testing.T) {
-	/*
-		DOCS := [][2]string {
-			{" 0", "a b c"},
-			{" 1", "a"},
-			{" 2", "a c"},
-			{" 3", "a"},
-			{" 4", "a c"},
-			{" 5", "a"},
-			{" 6", "a"},
-			{" 7", "a"},
-			{" 8", "a b c"},
-			{" 9", "a"},
-			{"10", "a c"},
-			{"11", "a c"},
-			{"12", "a c"},
-			{"13", "a"},
-			{"14", "a c"},
-			{"15", "a"},
-		}
-	*/
 	DOCS := [][2]string{
 		{" 0", "a b c"},
 		{" 1", "a"},
@@ -246,7 +229,7 @@ func TestTokenSetSearcher_bug1(t *testing.T) {
 		docs = append(docs, docID)
 		docInfo := data.(*DocInfo)
 		infos = append(infos, docInfo)
-		fmt.Printf("Doc: %d, %+v\n", docID, docInfo)
+		t.Logf("Doc: %d, %+v\n", docID, docInfo)
 		return nil
 	}
 

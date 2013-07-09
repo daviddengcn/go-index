@@ -2,7 +2,6 @@ package index
 
 import (
 	"github.com/daviddengcn/go-villa"
-	"log"
 	"testing"
 )
 
@@ -26,7 +25,7 @@ func TestTokenIndexer(t *testing.T) {
 	if err := ti.Save(&b); err != nil {
 		t.Errorf("Save failed: %v", err)
 	}
-	log.Printf("[ti] %d bytes written", len(b))
+	t.Logf("[ti] %d bytes written", len(b))
 
 	if err := ti.Load(&b); err != nil {
 		t.Errorf("Load failed: %v", err)

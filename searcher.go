@@ -264,3 +264,8 @@ func (s *TokenSetSearcher) DocCount() int {
 func (s *TokenSetSearcher) DeletedCount() int {
 	return s.deletedCount
 }
+
+// Returns the docIDs of a speicified token.
+func (s *TokenSetSearcher) TokenDocList(field, token string) []int32 {
+	return s.inverted[field+":"+token]
+}

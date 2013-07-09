@@ -1,7 +1,6 @@
 package index
 
 import (
-	"fmt"
 	"github.com/daviddengcn/go-algs/ed"
 	"strings"
 	"testing"
@@ -72,9 +71,9 @@ h2 text
 `
 	md := ParseMarkdown([]byte(src))
 
-	fmt.Printf("Links:\n")
+	t.Logf("Links:\n")
 	for i, link := range md.Links {
-		fmt.Printf("%3d: %+v\n", i, link)
+		t.Logf("%3d: %+v\n", i, link)
 	}
 
 	MD :=
