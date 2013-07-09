@@ -3,6 +3,8 @@ package index
 import (
 	"bytes"
 	"github.com/russross/blackfriday"
+
+//	"log"
 )
 
 // data-structure for a link
@@ -50,6 +52,10 @@ func (md *markdownData) Paragraph(out *bytes.Buffer, text func() bool) {
 func (*markdownData) Table(out *bytes.Buffer, header []byte, body []byte, columnData []int) {}
 func (*markdownData) TableRow(out *bytes.Buffer, text []byte)                               {}
 func (*markdownData) TableCell(out *bytes.Buffer, text []byte, flags int)                   {}
+func (*markdownData) Footnotes(out *bytes.Buffer, text func() bool) {
+	text()
+}
+func (*markdownData) FootnoteItem(out *bytes.Buffer, name, text []byte, flags int) {}
 
 // Span-level callbacks
 func (md *markdownData) AutoLink(out *bytes.Buffer, link []byte, kind int) {
@@ -65,7 +71,7 @@ func (*markdownData) Emphasis(out *bytes.Buffer, text []byte) {
 	out.Write(text)
 }
 func (*markdownData) Image(out *bytes.Buffer, link []byte, title []byte, alt []byte) {}
-func (*markdownData) LineBreak(out *bytes.Buffer)                                 {}
+func (*markdownData) LineBreak(out *bytes.Buffer)                                    {}
 func (md *markdownData) Link(out *bytes.Buffer, link []byte, title []byte, content []byte) {
 	out.Write(content)
 	md.Links = append(md.Links, Link{
@@ -78,7 +84,8 @@ func (*markdownData) RawHtmlTag(out *bytes.Buffer, tag []byte) {}
 func (*markdownData) TripleEmphasis(out *bytes.Buffer, text []byte) {
 	out.Write(text)
 }
-func (*markdownData) StrikeThrough(out *bytes.Buffer, text []byte) {}
+func (*markdownData) StrikeThrough(out *bytes.Buffer, text []byte)      {}
+func (*markdownData) FootnoteRef(out *bytes.Buffer, ref []byte, id int) {}
 
 // Low-level callbacks
 func (*markdownData) Entity(out *bytes.Buffer, entity []byte) {}

@@ -61,18 +61,20 @@ _Introduction_ __to__ an [example](http://example.com/) http://www.example.com/
 * L1
  * L2
 Hello
-Go
+Go [Go][go]
 
 h2 text
 -------
-` + "```go" +
-			"var i int" +
-			"```"
+` + "```go\n" +
+			"var i int\n" +
+			"```" + `
+[go]: http://golang.org/ "Golang"
+`
 	md := ParseMarkdown([]byte(src))
 
 	fmt.Printf("Links:\n")
 	for i, link := range md.Links {
-		fmt.Printf("%3d: %v\n", i, link)
+		fmt.Printf("%3d: %+v\n", i, link)
 	}
 
 	MD :=
@@ -83,7 +85,7 @@ L1
 
 L2
 Hello
-Go
+Go Go
 
 h2 text
 
