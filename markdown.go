@@ -3,8 +3,6 @@ package index
 import (
 	"bytes"
 	"github.com/russross/blackfriday"
-
-//	"log"
 )
 
 // data-structure for a link
@@ -24,29 +22,45 @@ type markdownData struct {
 	*MarkdownData
 }
 
+func appendNewLine(out *bytes.Buffer) {
+	buf := out.Bytes()
+	if len(buf) == 0 {
+		return
+	}
+	if len(buf) >= 2 && buf[len(buf) - 1] == byte('\n') && buf[len(buf) - 2] == byte('\n') {
+		return
+	}
+	if len(buf) >= 1 && buf[len(buf) - 1] != byte('\n') {
+		out.WriteRune('\n')
+	}
+	out.WriteRune('\n')
+}
+
 // block-level callbacks
 func (*markdownData) BlockCode(out *bytes.Buffer, text []byte, lang string) {}
 func (*markdownData) BlockQuote(out *bytes.Buffer, text []byte)             {}
 func (*markdownData) BlockHtml(out *bytes.Buffer, text []byte)              {}
 func (md *markdownData) Header(out *bytes.Buffer, text func() bool, level int) {
+	appendNewLine(out)
 	if text() {
-		out.WriteRune('\n')
+		appendNewLine(out)
 	}
 }
 func (*markdownData) HRule(out *bytes.Buffer) {}
 func (*markdownData) List(out *bytes.Buffer, text func() bool, flags int) {
+	appendNewLine(out)
 	if text() {
-		out.WriteRune('\n')
+		appendNewLine(out)
 	}
 }
 func (md *markdownData) ListItem(out *bytes.Buffer, text []byte, flags int) {
-	out.WriteRune('\n')
+	appendNewLine(out)
 	out.Write(text)
-	out.WriteRune('\n')
+	appendNewLine(out)
 }
 func (md *markdownData) Paragraph(out *bytes.Buffer, text func() bool) {
 	if text() {
-		out.WriteRune('\n')
+		appendNewLine(out)
 	}
 }
 func (*markdownData) Table(out *bytes.Buffer, header []byte, body []byte, columnData []int) {}
@@ -54,6 +68,7 @@ func (*markdownData) TableRow(out *bytes.Buffer, text []byte)                   
 func (*markdownData) TableCell(out *bytes.Buffer, text []byte, flags int)                   {}
 func (*markdownData) Footnotes(out *bytes.Buffer, text func() bool) {
 	text()
+	appendNewLine(out)
 }
 func (*markdownData) FootnoteItem(out *bytes.Buffer, name, text []byte, flags int) {}
 

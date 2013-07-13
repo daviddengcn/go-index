@@ -2,12 +2,16 @@ package index
 
 import (
 	"github.com/daviddengcn/go-algs/ed"
+	"github.com/daviddengcn/go-villa"
 	"strings"
 	"testing"
 )
 
-func AssertStringsEquals(t *testing.T, name string, act, exp []string) {
-	t.Errorf("%s unexpected(exp: %d lines, act %d lines!", name, len(exp), len(act))
+func AssertStringsEqual(t *testing.T, name string, act, exp []string) {
+	if villa.StringSlice(exp).Equals(act) {
+		return
+	}
+	t.Errorf("%s unexpected(exp: %d lines, act %d lines)!", name, len(exp), len(act))
 	t.Logf("exp ---  act +++")
 	t.Logf("Difference:")
 	_, matA, matB := ed.EditDistanceFFull(len(exp), len(act), func(iA, iB int) int {
@@ -52,6 +56,6 @@ func AssertTextEquals(t *testing.T, name, act, exp string) {
 	expLines := strings.Split(exp, "\n")
 	actLines := strings.Split(act, "\n")
 	
-	AssertStringsEquals(t, name, actLines, expLines)
+	AssertStringsEqual(t, name, actLines, expLines)
 }
 

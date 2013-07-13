@@ -12,6 +12,7 @@ _Introduction_ __to__ an [example](http://example.com/) http://www.example.com/
 
 * L1
  * L2
+
 Hello
 Go [Go][go]
 
@@ -31,11 +32,13 @@ h2 text
 
 	MD :=
 		`h1 text
+
 Introduction to an example 
 
 L1
 
 L2
+
 Hello
 Go Go
 
