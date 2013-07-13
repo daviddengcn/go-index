@@ -27,10 +27,10 @@ func appendNewLine(out *bytes.Buffer) {
 	if len(buf) == 0 {
 		return
 	}
-	if len(buf) >= 2 && buf[len(buf) - 1] == byte('\n') && buf[len(buf) - 2] == byte('\n') {
+	if len(buf) >= 2 && buf[len(buf)-1] == byte('\n') && buf[len(buf)-2] == byte('\n') {
 		return
 	}
-	if len(buf) >= 1 && buf[len(buf) - 1] != byte('\n') {
+	if len(buf) >= 1 && buf[len(buf)-1] != byte('\n') {
 		out.WriteRune('\n')
 	}
 	out.WriteRune('\n')

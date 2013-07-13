@@ -55,7 +55,6 @@ func AssertTextEquals(t *testing.T, name, act, exp string) {
 
 	expLines := strings.Split(exp, "\n")
 	actLines := strings.Split(act, "\n")
-	
+
 	AssertStringsEqual(t, name, actLines, expLines)
 }
-

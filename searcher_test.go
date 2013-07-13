@@ -69,7 +69,7 @@ func TestTokenSetSearcher(t *testing.T) {
 
 	docs = sch.TokenDocList("text", "my")
 	villa.AssertStringEquals(t, "text:To", docs, "[0 1]")
-	
+
 	sch.Delete(0)
 
 	docs, infos = nil, nil
