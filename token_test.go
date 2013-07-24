@@ -2,7 +2,6 @@ package index
 
 import (
 	"bytes"
-	"github.com/daviddengcn/go-villa"
 	"testing"
 	"unicode"
 
@@ -36,5 +35,5 @@ func TestTokenizer(t *testing.T) {
 	}
 
 	//t.Print(text, "->", tokens)
-	villa.AssertStringEquals(t, "tokens", tokens, "[abc de ' f ghi jk]")
+	AssertStringEquals(t, "tokens", tokens, "[abc de ' f ghi jk]")
 }
