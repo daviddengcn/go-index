@@ -17,9 +17,9 @@ func TestTokenIndexer(t *testing.T) {
 		ti.Put(links[0], villa.NewStrSet(links[1:]...))
 	}
 
-	villa.AssertStringEquals(t, "inlinks of a", ti.IdsOfToken("a"), "[b]")
-	villa.AssertStringEquals(t, "inlinks of b", ti.IdsOfToken("b"), "[a]")
-	villa.AssertStringEquals(t, "inlinks of c", ti.IdsOfToken("c"), "[a b]")
+	AssertStringEquals(t, "inlinks of a", ti.IdsOfToken("a"), "[b]")
+	AssertStringEquals(t, "inlinks of b", ti.IdsOfToken("b"), "[a]")
+	AssertStringEquals(t, "inlinks of c", ti.IdsOfToken("c"), "[a b]")
 
 	var b villa.ByteSlice
 	if err := ti.Save(&b); err != nil {
@@ -31,13 +31,13 @@ func TestTokenIndexer(t *testing.T) {
 		t.Errorf("Load failed: %v", err)
 	}
 
-	villa.AssertStringEquals(t, "inlinks of a", ti.IdsOfToken("a"), "[b]")
-	villa.AssertStringEquals(t, "inlinks of b", ti.IdsOfToken("b"), "[a]")
-	villa.AssertStringEquals(t, "inlinks of c", ti.IdsOfToken("c"), "[a b]")
+	AssertStringEquals(t, "inlinks of a", ti.IdsOfToken("a"), "[b]")
+	AssertStringEquals(t, "inlinks of b", ti.IdsOfToken("b"), "[a]")
+	AssertStringEquals(t, "inlinks of c", ti.IdsOfToken("c"), "[a b]")
 
 	ti.Put("a", villa.NewStrSet("a", "b"))
 
-	villa.AssertStringEquals(t, "inlinks of a", ti.IdsOfToken("a"), "[a b]")
-	villa.AssertStringEquals(t, "inlinks of b", ti.IdsOfToken("b"), "[a]")
-	villa.AssertStringEquals(t, "inlinks of c", ti.IdsOfToken("c"), "[b]")
+	AssertStringEquals(t, "inlinks of a", ti.IdsOfToken("a"), "[a b]")
+	AssertStringEquals(t, "inlinks of b", ti.IdsOfToken("b"), "[a]")
+	AssertStringEquals(t, "inlinks of c", ti.IdsOfToken("c"), "[b]")
 }

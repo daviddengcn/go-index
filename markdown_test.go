@@ -21,9 +21,11 @@ Go [Go][go]
 
 h2 text
 -------
-` + "```go\n" +
-			"var i int\n" +
-			"```" + `
+
+` + "```go" + `
+var i int
+package main
+` + "```\n" + `
 [go]: http://golang.org/ "Golang"
 `
 	md := ParseMarkdown([]byte(src))
