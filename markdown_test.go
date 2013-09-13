@@ -2,7 +2,22 @@ package index
 
 import (
 	"testing"
+	
+	"github.com/daviddengcn/go-assert"
+	"github.com/russross/blackfriday"
 )
+
+func TestParseMarkdown_bug(t *testing.T) {
+	t.Logf("%s", blackfriday.MarkdownCommon([]byte("[[t]](/t)")))
+	t.Logf("%s", blackfriday.MarkdownCommon([]byte(
+		"[![Build Status](https://secure.travis-ci.org/daaku/go.pqueue.png)](http://travis-ci.org/daaku/go.pqueue)")))
+	
+	ParseMarkdown([]byte("[[t]](/t)"))
+	
+	md := string(ParseMarkdown([]byte(
+		"[![Build Status](https://secure.travis-ci.org/daaku/go.pqueue.png)](http://travis-ci.org/daaku/go.pqueue)")).Text)
+	assert.StringEquals(t, "md", md, "[]()")
+}
 
 func TestParseMarkdown(t *testing.T) {
 	src :=
@@ -45,7 +60,7 @@ L1
 
 L2
 
-go.pqueue ![Build Status](https://secure.travis-ci.org/daaku/go.pqueue.png)
+go.pqueue []()
 
 Hello
 Go Go
@@ -53,5 +68,5 @@ Go Go
 h2 text
 
 `
-	AssertTextEquals(t, "Text", string(md.Text), MD)
+	assert.TextEquals(t, "Text", string(md.Text), MD)
 }

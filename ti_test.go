@@ -1,8 +1,10 @@
 package index
 
 import (
-	"github.com/daviddengcn/go-villa"
 	"testing"
+	
+	"github.com/daviddengcn/go-assert"
+	"github.com/daviddengcn/go-villa"
 )
 
 func TestTokenIndexer(t *testing.T) {
@@ -17,9 +19,9 @@ func TestTokenIndexer(t *testing.T) {
 		ti.Put(links[0], villa.NewStrSet(links[1:]...))
 	}
 
-	AssertStringEquals(t, "inlinks of a", ti.IdsOfToken("a"), "[b]")
-	AssertStringEquals(t, "inlinks of b", ti.IdsOfToken("b"), "[a]")
-	AssertStringEquals(t, "inlinks of c", ti.IdsOfToken("c"), "[a b]")
+	assert.StringEquals(t, "inlinks of a", ti.IdsOfToken("a"), "[b]")
+	assert.StringEquals(t, "inlinks of b", ti.IdsOfToken("b"), "[a]")
+	assert.StringEquals(t, "inlinks of c", ti.IdsOfToken("c"), "[a b]")
 
 	var b villa.ByteSlice
 	if err := ti.Save(&b); err != nil {
@@ -31,13 +33,13 @@ func TestTokenIndexer(t *testing.T) {
 		t.Errorf("Load failed: %v", err)
 	}
 
-	AssertStringEquals(t, "inlinks of a", ti.IdsOfToken("a"), "[b]")
-	AssertStringEquals(t, "inlinks of b", ti.IdsOfToken("b"), "[a]")
-	AssertStringEquals(t, "inlinks of c", ti.IdsOfToken("c"), "[a b]")
+	assert.StringEquals(t, "inlinks of a", ti.IdsOfToken("a"), "[b]")
+	assert.StringEquals(t, "inlinks of b", ti.IdsOfToken("b"), "[a]")
+	assert.StringEquals(t, "inlinks of c", ti.IdsOfToken("c"), "[a b]")
 
 	ti.Put("a", villa.NewStrSet("a", "b"))
 
-	AssertStringEquals(t, "inlinks of a", ti.IdsOfToken("a"), "[a b]")
-	AssertStringEquals(t, "inlinks of b", ti.IdsOfToken("b"), "[a]")
-	AssertStringEquals(t, "inlinks of c", ti.IdsOfToken("c"), "[b]")
+	assert.StringEquals(t, "inlinks of a", ti.IdsOfToken("a"), "[a b]")
+	assert.StringEquals(t, "inlinks of b", ti.IdsOfToken("b"), "[a]")
+	assert.StringEquals(t, "inlinks of c", ti.IdsOfToken("c"), "[b]")
 }

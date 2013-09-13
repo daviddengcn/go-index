@@ -5,7 +5,7 @@ import (
 	"testing"
 	"unicode"
 
-//	"fmt"
+	"github.com/daviddengcn/go-assert"
 )
 
 func TestTokenizer(t *testing.T) {
@@ -34,6 +34,5 @@ func TestTokenizer(t *testing.T) {
 		t.Errorf("Tokenize failed: %v", err)
 	}
 
-	//t.Print(text, "->", tokens)
-	AssertStringEquals(t, "tokens", tokens, "[abc de ' f ghi jk]")
+	assert.StringEquals(t, "tokens", tokens, "[abc de ' f ghi jk]")
 }
