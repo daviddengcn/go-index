@@ -3,7 +3,7 @@ package index
 import (
 	"testing"
 	"unicode"
-	
+
 	"github.com/daviddengcn/go-assert"
 	"github.com/daviddengcn/go-villa"
 )

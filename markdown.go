@@ -2,6 +2,7 @@ package index
 
 import (
 	"bytes"
+
 	"github.com/russross/blackfriday"
 )
 
@@ -85,8 +86,10 @@ func (*markdownData) DoubleEmphasis(out *bytes.Buffer, text []byte) {
 func (*markdownData) Emphasis(out *bytes.Buffer, text []byte) {
 	out.Write(text)
 }
-func (*markdownData) Image(out *bytes.Buffer, link []byte, title []byte, alt []byte) {}
-func (*markdownData) LineBreak(out *bytes.Buffer)                                    {}
+func (*markdownData) Image(out *bytes.Buffer, link []byte, title []byte, alt []byte) {
+	out.WriteString(" ")
+}
+func (*markdownData) LineBreak(out *bytes.Buffer) {}
 func (md *markdownData) Link(out *bytes.Buffer, link []byte, title []byte, content []byte) {
 	out.Write(content)
 	md.Links = append(md.Links, Link{

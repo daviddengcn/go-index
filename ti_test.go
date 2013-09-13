@@ -2,7 +2,7 @@ package index
 
 import (
 	"testing"
-	
+
 	"github.com/daviddengcn/go-assert"
 	"github.com/daviddengcn/go-villa"
 )
