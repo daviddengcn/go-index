@@ -67,6 +67,7 @@ func (md *markdownData) Paragraph(out *bytes.Buffer, text func() bool) {
 func (*markdownData) Table(out *bytes.Buffer, header []byte, body []byte, columnData []int) {}
 func (*markdownData) TableRow(out *bytes.Buffer, text []byte)                               {}
 func (*markdownData) TableCell(out *bytes.Buffer, text []byte, flags int)                   {}
+func (*markdownData) TableHeaderCell(out *bytes.Buffer, text []byte, flags int)             {}
 func (*markdownData) Footnotes(out *bytes.Buffer, text func() bool) {
 	text()
 	appendNewLine(out)
