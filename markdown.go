@@ -41,7 +41,7 @@ func appendNewLine(out *bytes.Buffer) {
 func (*markdownData) BlockCode(out *bytes.Buffer, text []byte, lang string) {}
 func (*markdownData) BlockQuote(out *bytes.Buffer, text []byte)             {}
 func (*markdownData) BlockHtml(out *bytes.Buffer, text []byte)              {}
-func (md *markdownData) Header(out *bytes.Buffer, text func() bool, level int) {
+func (md *markdownData) Header(out *bytes.Buffer, text func() bool, level int, id string) {
 	appendNewLine(out)
 	if text() {
 		appendNewLine(out)
@@ -73,6 +73,10 @@ func (*markdownData) Footnotes(out *bytes.Buffer, text func() bool) {
 	appendNewLine(out)
 }
 func (*markdownData) FootnoteItem(out *bytes.Buffer, name, text []byte, flags int) {}
+
+func (*markdownData) GetFlags() int {
+	return 0
+}
 
 // Span-level callbacks
 func (md *markdownData) AutoLink(out *bytes.Buffer, link []byte, kind int) {
