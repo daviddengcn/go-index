@@ -83,11 +83,13 @@ func TestTokenSetSearcher(t *testing.T) {
 	gob.Register(&DocInfo{})
 	if err := sch.Save(&b); err != nil {
 		t.Errorf("Save failed: %v", err)
+		return
 	}
 	t.Logf("%d bytes written", len(b))
 
 	if err := sch.Load(&b); err != nil {
 		t.Errorf("Load failed: %v", err)
+		return
 	}
 	t.Logf("%d docs loaded!", sch.DocCount())
 

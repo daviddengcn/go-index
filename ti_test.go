@@ -23,14 +23,17 @@ func TestTokenIndexer(t *testing.T) {
 	assert.StringEquals(t, "inlinks of b", ti.IdsOfToken("b"), "[a]")
 	assert.StringEquals(t, "inlinks of c", ti.IdsOfToken("c"), "[a b]")
 
+	// save/load
 	var b villa.ByteSlice
 	if err := ti.Save(&b); err != nil {
 		t.Errorf("Save failed: %v", err)
+		return
 	}
 	t.Logf("[ti] %d bytes written", len(b))
 
 	if err := ti.Load(&b); err != nil {
 		t.Errorf("Load failed: %v", err)
+		return
 	}
 
 	assert.StringEquals(t, "inlinks of a", ti.IdsOfToken("a"), "[b]")

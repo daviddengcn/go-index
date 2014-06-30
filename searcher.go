@@ -207,9 +207,17 @@ mainloop:
 // Saves serializes the searcher data to a Writer with the gob encoder.
 func (s *TokenSetSearcher) Save(w io.Writer) error {
 	enc := gob.NewEncoder(w)
-	if err := enc.Encode(s.docs); err != nil {
+	
+	if err := enc.Encode(len(s.docs)); err != nil {
 		return err
 	}
+
+	for i := range s.docs {
+		if err := enc.Encode(s.docs[i:i+1]); err != nil {
+			return err
+		}
+	}
+
 	if err := enc.Encode(s.inverted); err != nil {
 		return err
 	}
@@ -227,9 +235,21 @@ func (s *TokenSetSearcher) Load(r io.Reader) error {
 	*s = TokenSetSearcher{}
 
 	dec := gob.NewDecoder(r)
-	if err := dec.Decode(&(s.docs)); err != nil {
+	
+	var docsLen int
+	if err := dec.Decode(&docsLen); err != nil {
 		return err
 	}
+
+	s.docs = make([]interface{}, docsLen)
+	var doc []interface{} = make([]interface{}, 1)
+	for i := 0; i < docsLen; i++ {
+		if err := dec.Decode(&doc); err != nil {
+			return err
+		}
+		s.docs[i] = doc[0]
+	}
+	
 	if err := dec.Decode(&(s.inverted)); err != nil {
 		return err
 	}
@@ -240,7 +260,7 @@ func (s *TokenSetSearcher) Load(r io.Reader) error {
 	}
 	s.deleted.SetBytes(bytes)
 
-	if err := dec.Decode(&s.deletedCount); err != nil {
+	if err := dec.Decode(&(s.deletedCount)); err != nil {
 		return err
 	}
 	return nil
