@@ -22,6 +22,7 @@ var (
 // registered by calling gob.Register.
 type TokenSetSearcher struct {
 	docs         []interface{}
+	// map from token to list of local IDs(indexes in docs field)
 	inverted     map[string][]int32
 	deleted      big.Int
 	deletedCount int
@@ -213,14 +214,23 @@ func (s *TokenSetSearcher) Save(w io.Writer) error {
 	}
 
 	for i := range s.docs {
-		if err := enc.Encode(s.docs[i:i+1]); err != nil {
+		if err := enc.Encode(&s.docs[i]); err != nil {
 			return err
 		}
 	}
 
-	if err := enc.Encode(s.inverted); err != nil {
+	if err := enc.Encode(len(s.inverted)); err != nil {
 		return err
 	}
+	for token, ids := range s.inverted {
+		if err := enc.Encode(token); err != nil {
+			return err
+		}
+		if err := enc.Encode(ids); err != nil {
+			return err
+		}
+	}
+	
 	if err := enc.Encode(s.deleted.Bytes()); err != nil {
 		return err
 	}
@@ -242,16 +252,29 @@ func (s *TokenSetSearcher) Load(r io.Reader) error {
 	}
 
 	s.docs = make([]interface{}, docsLen)
-	var doc []interface{} = make([]interface{}, 1)
 	for i := 0; i < docsLen; i++ {
-		if err := dec.Decode(&doc); err != nil {
+		if err := dec.Decode(&s.docs[i]); err != nil {
 			return err
 		}
-		s.docs[i] = doc[0]
 	}
-	
-	if err := dec.Decode(&(s.inverted)); err != nil {
+
+	var invLen int
+	if err := dec.Decode(&invLen); err != nil {
 		return err
+	}
+	if invLen > 0 {
+		s.inverted = make(map[string][]int32)
+		for i := 0; i < invLen; i++ {
+			var token string
+			var ids []int32
+			if err := dec.Decode(&token); err != nil {
+				return err
+			}
+			if err := dec.Decode(&ids); err != nil {
+				return err
+			}
+			s.inverted[token] = ids
+		}
 	}
 
 	var bytes []byte
