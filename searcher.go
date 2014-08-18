@@ -21,7 +21,7 @@ var (
 // If a customized type needs to be saved and loaded again, it must be
 // registered by calling gob.Register.
 type TokenSetSearcher struct {
-	docs         []interface{}
+	docs []interface{}
 	// map from token to list of local IDs(indexes in docs field)
 	inverted     map[string][]int32
 	deleted      big.Int
@@ -208,7 +208,7 @@ mainloop:
 // Saves serializes the searcher data to a Writer with the gob encoder.
 func (s *TokenSetSearcher) Save(w io.Writer) error {
 	enc := gob.NewEncoder(w)
-	
+
 	if err := enc.Encode(len(s.docs)); err != nil {
 		return err
 	}
@@ -230,7 +230,7 @@ func (s *TokenSetSearcher) Save(w io.Writer) error {
 			return err
 		}
 	}
-	
+
 	if err := enc.Encode(s.deleted.Bytes()); err != nil {
 		return err
 	}
@@ -245,7 +245,7 @@ func (s *TokenSetSearcher) Load(r io.Reader) error {
 	*s = TokenSetSearcher{}
 
 	dec := gob.NewDecoder(r)
-	
+
 	var docsLen int
 	if err := dec.Decode(&docsLen); err != nil {
 		return err

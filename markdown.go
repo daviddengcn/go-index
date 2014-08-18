@@ -120,6 +120,8 @@ func (*markdownData) NormalText(out *bytes.Buffer, text []byte) {
 func (*markdownData) DocumentHeader(out *bytes.Buffer) {}
 func (*markdownData) DocumentFooter(out *bytes.Buffer) {}
 
+func (*markdownData) TitleBlock(out *bytes.Buffer, text []byte) {}
+
 // ParseMarkdown parses the markdown source and returns the plain text and link
 // information.
 func ParseMarkdown(src []byte) *MarkdownData {
