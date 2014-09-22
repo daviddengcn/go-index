@@ -149,8 +149,8 @@ mainloop:
 
 		if docID-invList[idxs[i]] > gaps[i] {
 			// estimate skip linearly
-			skip := int(docID-invList[idxs[i]]) * len(invList) / N
-			newIdx := idxs[i] + skip
+			skip := int64(docID-invList[idxs[i]]) * int64(len(invList)) / int64(N)
+			newIdx := idxs[i] + int(skip)
 			if newIdx < len(invList) && invList[newIdx] <= docID {
 				idxs[i] = newIdx
 			}
