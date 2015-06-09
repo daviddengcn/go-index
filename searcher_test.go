@@ -95,7 +95,7 @@ func TestTokenSetSearcher(t *testing.T) {
 
 	docs, infos = nil, nil
 	sch.Search(nil, collector)
-	t.Logf("Docs:", docs, "Infos", infos)
+	t.Log("Docs:", docs, "Infos", infos)
 	assert.Equals(t, "len(docs)()", len(docs), 1)
 }
 
