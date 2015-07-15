@@ -4,7 +4,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/daviddengcn/go-assert"
+	"github.com/golangplus/testing/assert"
+
 	"github.com/russross/blackfriday"
 )
 
@@ -19,7 +20,7 @@ func TestParseMarkdown_bug(t *testing.T) {
 		"[![Build Status](https://secure.travis-ci.org/daaku/go.pqueue.png)](http://travis-ci.org/daaku/go.pqueue)"))
 	t.Logf("%+v", psd)
 	md := string(psd.Text)
-	assert.StringEquals(t, "md", md, " \n\n")
+	assert.StringEqual(t, "md", md, " \n\n")
 }
 
 func TestParseMarkdown(t *testing.T) {
@@ -55,7 +56,7 @@ package main
 		links = append(links, fmt.Sprintf("%+v", link))
 	}
 	t.Logf("act:\n%s", string(md.Text))
-	assert.LinesEqual(t, "links", links, []string{
+	assert.StringEqual(t, "links", links, []string{
 		"{URL:http://example.com/ Anchor:example Title:}",
 		"{URL:http://www.example.com/ Anchor: Title:}",
 		"{URL:http://travis-ci.org/daaku/go.pqueue Anchor:  Title:}",
@@ -79,5 +80,5 @@ Go Go
 h2 text
 
 `
-	assert.TextEquals(t, "Text", string(md.Text), MD)
+	assert.StringEqual(t, "Text", string(md.Text), MD)
 }

@@ -1,8 +1,9 @@
 package index
 
 import (
-	"bytes"
 	"io"
+	
+	"github.com/golangplus/bytes"
 )
 
 // A Tokenizer interface can tokenize text into tokens.
@@ -39,7 +40,7 @@ type RuneTypeFunc func(last, current rune) RuneType
 func Tokenize(runeType RuneTypeFunc, in io.RuneReader,
 	output func(token []byte) error) error {
 	last := rune(0)
-	var outBuf bytes.Buffer
+	var outBuf bytesp.ByteSlice
 	for {
 		current, _, err := in.ReadRune()
 		if err != nil {
@@ -48,12 +49,12 @@ func Tokenize(runeType RuneTypeFunc, in io.RuneReader,
 		tp := runeType(last, current)
 		if tp == TokenStart || tp == TokenSep {
 			// finish current
-			if outBuf.Len() > 0 {
-				err = output(outBuf.Bytes())
+			if len(outBuf) > 0 {
+				err = output([]byte(outBuf))
 				if err != nil {
 					return err
 				}
-				outBuf.Reset()
+				outBuf = outBuf[:0]
 			}
 		}
 
@@ -64,8 +65,8 @@ func Tokenize(runeType RuneTypeFunc, in io.RuneReader,
 	}
 
 	// finish last, if any
-	if outBuf.Len() > 0 {
-		return output(outBuf.Bytes())
+	if len(outBuf) > 0 {
+		return output([]byte(outBuf))
 	}
 	return nil
 }
