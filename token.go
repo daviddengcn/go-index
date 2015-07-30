@@ -2,7 +2,7 @@ package index
 
 import (
 	"io"
-	
+
 	"github.com/golangplus/bytes"
 )
 

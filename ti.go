@@ -2,9 +2,13 @@ package index
 
 import (
 	"encoding/gob"
-	"github.com/daviddengcn/go-villa"
 	"io"
 	"sort"
+
+	"github.com/golangplus/sort"
+	"github.com/golangplus/strings"
+
+	"github.com/daviddengcn/go-villa"
 )
 
 // TokenIndexer is main used to compute outlinks from inlinks.
@@ -16,41 +20,45 @@ type TokenIndexer struct {
 }
 
 func removeFromSortedString(l []string, el string) []string {
-	pos, found := villa.StrValueCompare.BinarySearch(l, el)
-	if found {
-		(*villa.StringSlice)(&l).Remove(pos)
+	i := sort.SearchStrings(l, el)
+	if i >= len(l) || l[i] != el {
+		return l
 	}
-	return l
+
+	return stringsp.SliceRemove(l, i)
 }
 
 func addToSortedString(l []string, el string) []string {
-	pos, found := villa.StrValueCompare.BinarySearch(l, el)
-	if !found {
-		(*villa.StringSlice)(&l).Insert(pos, el)
+	i := sort.SearchStrings(l, el)
+	if i < len(l) && l[i] == el {
+		return l
 	}
-	return l
+	return stringsp.SliceInsert(l, i, el)
 }
 
-// Put set the tokens for a specified id. If the id was put before, the tokens
+// Put sets the tokens for a specified id. If the id was put before, the tokens
 // are updated.
 func (ti *TokenIndexer) Put(id string, tokens villa.StrSet) {
-	oldTokens, _ := ti.idTokens[id]
+	oldTokens := ti.idTokens[id]
 
 	newTokens := tokens.Elements()
 	sort.Strings(newTokens)
-
-	toRemove, toAdd := villa.StrValueCompare.DiffSlicePair(oldTokens, newTokens)
 
 	if ti.tokenIds == nil {
 		ti.tokenIds = make(map[string][]string)
 	}
 
-	for _, token := range toRemove {
+	sortp.DiffSortedList(len(oldTokens), len(newTokens), func(o, n int) int {
+		return stringsp.Compare(oldTokens[o], newTokens[n])
+	}, func(o int) {
+		// To remove
+		token := oldTokens[o]
 		ti.tokenIds[token] = removeFromSortedString(ti.tokenIds[token], id)
-	}
-	for _, token := range toAdd {
+	}, func(n int) {
+		// To add
+		token := newTokens[n]
 		ti.tokenIds[token] = addToSortedString(ti.tokenIds[token], id)
-	}
+	})
 
 	if ti.idTokens == nil {
 		ti.idTokens = make(map[string][]string)
