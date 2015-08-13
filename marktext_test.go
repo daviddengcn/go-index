@@ -11,7 +11,7 @@ import (
 func TestMarkText(t *testing.T) {
 	text := "Hello myFriend"
 
-	var outBuf bytesp.ByteSlice
+	var outBuf bytesp.Slice
 	err := MarkText([]byte(text), func(last, current rune) RuneType {
 		if unicode.IsSpace(current) {
 			return TokenSep
