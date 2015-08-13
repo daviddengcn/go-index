@@ -25,7 +25,7 @@ func TestTokenIndexer(t *testing.T) {
 	assert.Equal(t, "inlinks of c", ti.IdsOfToken("c"), []string{"a", "b"})
 
 	// save/load
-	var b bytesp.ByteSlice
+	var b bytesp.Slice
 	if err := ti.Save(&b); err != nil {
 		t.Errorf("Save failed: %v", err)
 		return
