@@ -4,14 +4,14 @@ import (
 	"testing"
 	"unicode"
 
-	"github.com/daviddengcn/go-assert"
-	"github.com/daviddengcn/go-villa"
+	"github.com/golangplus/bytes"
+	"github.com/golangplus/testing/assert"
 )
 
 func TestMarkText(t *testing.T) {
 	text := "Hello myFriend"
 
-	var outBuf villa.ByteSlice
+	var outBuf bytesp.ByteSlice
 	err := MarkText([]byte(text), func(last, current rune) RuneType {
 		if unicode.IsSpace(current) {
 			return TokenSep
@@ -40,5 +40,5 @@ func TestMarkText(t *testing.T) {
 
 	marked := string(outBuf)
 
-	assert.Equals(t, "marked", marked, "<Hello> <my><Friend>")
+	assert.Equal(t, "marked", marked, "<Hello> <my><Friend>")
 }

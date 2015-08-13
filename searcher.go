@@ -3,9 +3,10 @@ package index
 import (
 	"encoding/gob"
 	"errors"
-	"github.com/daviddengcn/go-villa"
 	"io"
 	"math/big"
+
+	"github.com/daviddengcn/go-villa"
 )
 
 var (
@@ -28,7 +29,7 @@ type TokenSetSearcher struct {
 	deletedCount int
 }
 
-// IndexDoc indexes a document to the searcher. It returns a local doc id.
+// AddDoc indexes a document to the searcher. It returns a local doc id.
 func (s *TokenSetSearcher) AddDoc(fields map[string]villa.StrSet,
 	data interface{}) int32 {
 
@@ -70,7 +71,7 @@ func SingleFieldQuery(field string, tokens ...string) map[string]villa.StrSet {
 	}
 }
 
-// Search ouputs all documents (docID and associated data) with all tokens
+// Search outputs all documents (docID and associated data) with all tokens
 // hit, in the same order as ther were added. If output returns an nonnil error,
 // the search stops, and the error is returned.
 // If no tokens in query, all non-deleted documents are returned.
@@ -205,7 +206,7 @@ mainloop:
 	return nil
 }
 
-// Saves serializes the searcher data to a Writer with the gob encoder.
+// Save serializes the searcher data to a Writer with the gob encoder.
 func (s *TokenSetSearcher) Save(w io.Writer) error {
 	enc := gob.NewEncoder(w)
 

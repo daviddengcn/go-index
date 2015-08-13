@@ -7,6 +7,8 @@ import (
 	"math/rand"
 	"testing"
 
+	"github.com/golangplus/bytes"
+
 	"github.com/daviddengcn/go-assert"
 	"github.com/daviddengcn/go-villa"
 )
@@ -20,7 +22,7 @@ func indexDocs(docs [][2]string) *TokenSetSearcher {
 	for i := range docs {
 		text := docs[i][1]
 		var tokens villa.StrSet
-		TokenizeBySeparators(" ,", villa.NewPByteSlice([]byte(text)),
+		TokenizeBySeparators(" ,", bytesp.NewPByteSlice([]byte(text)),
 			func(token []byte) error {
 				tokens.Put(string(token))
 				return nil
@@ -79,7 +81,7 @@ func TestTokenSetSearcher(t *testing.T) {
 	//fmt.Println("Docs:", docs, "Infos", infos)
 	assert.Equals(t, "len(docs)()", len(docs), 1)
 
-	var b villa.ByteSlice
+	var b bytesp.ByteSlice
 	gob.Register(&DocInfo{})
 	if err := sch.Save(&b); err != nil {
 		t.Errorf("Save failed: %v", err)

@@ -10,14 +10,14 @@ import (
 type Tokenizer interface {
 	/*
 		Tokenize separates a rune sequence into some tokens. If output returns
-		an non-nil error, tokenizing ceased, and the error is returned.
+		a non-nil error, tokenizing stops and the error is returned.
 	*/
 	Tokenize(in io.RuneReader, output func(token []byte) error) error
 }
 
 /*
-    ,----> TokenBody
-   ////
+     ,----> TokenBody
+    ////
   Hello  my  friend
   |     \___\________.> TokenSep (spaces)
   `-> TokenStart
@@ -71,6 +71,8 @@ func Tokenize(runeType RuneTypeFunc, in io.RuneReader,
 	return nil
 }
 
+// TokenizeBySeparators uses the runes of seps as seprators to
+// tokenize in.
 func TokenizeBySeparators(seps string, in io.RuneReader,
 	output func(token []byte) error) error {
 	isSap := make(map[rune]bool)

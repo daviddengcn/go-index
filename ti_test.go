@@ -3,9 +3,9 @@ package index
 import (
 	"testing"
 
+	"github.com/golangplus/bytes"
+	"github.com/golangplus/strings"
 	"github.com/golangplus/testing/assert"
-
-	"github.com/daviddengcn/go-villa"
 )
 
 func TestTokenIndexer(t *testing.T) {
@@ -17,7 +17,7 @@ func TestTokenIndexer(t *testing.T) {
 	ti := &TokenIndexer{}
 
 	for _, links := range outlinks {
-		ti.Put(links[0], villa.NewStrSet(links[1:]...))
+		ti.PutTokens(links[0], stringsp.NewSet(links[1:]...))
 	}
 
 	assert.Equal(t, "inlinks of a", ti.IdsOfToken("a"), []string{"b"})
@@ -25,7 +25,7 @@ func TestTokenIndexer(t *testing.T) {
 	assert.Equal(t, "inlinks of c", ti.IdsOfToken("c"), []string{"a", "b"})
 
 	// save/load
-	var b villa.ByteSlice
+	var b bytesp.ByteSlice
 	if err := ti.Save(&b); err != nil {
 		t.Errorf("Save failed: %v", err)
 		return
@@ -41,7 +41,7 @@ func TestTokenIndexer(t *testing.T) {
 	assert.Equal(t, "inlinks of b", ti.IdsOfToken("b"), []string{"a"})
 	assert.Equal(t, "inlinks of c", ti.IdsOfToken("c"), []string{"a", "b"})
 
-	ti.Put("a", villa.NewStrSet("a", "b"))
+	ti.PutTokens("a", stringsp.NewSet("a", "b"))
 
 	assert.Equal(t, "inlinks of a", ti.IdsOfToken("a"), []string{"a", "b"})
 	assert.Equal(t, "inlinks of b", ti.IdsOfToken("b"), []string{"a"})

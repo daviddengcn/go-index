@@ -11,7 +11,7 @@ import (
 	"github.com/daviddengcn/go-villa"
 )
 
-// TokenIndexer is main used to compute outlinks from inlinks.
+// TokenIndexer is mainly used to compute outlinks from inlinks.
 type TokenIndexer struct {
 	// key -> sorted tokens
 	idTokens map[string][]string
@@ -36,9 +36,13 @@ func addToSortedString(l []string, el string) []string {
 	return stringsp.SliceInsert(l, i, el)
 }
 
-// Put sets the tokens for a specified id. If the id was put before, the tokens
-// are updated.
 func (ti *TokenIndexer) Put(id string, tokens villa.StrSet) {
+	ti.PutTokens(id, stringsp.Set(tokens))
+}
+
+// Put sets the tokens for a specified ID. If the ID was put before, the tokens
+// are updated.
+func (ti *TokenIndexer) PutTokens(id string, tokens stringsp.Set) {
 	oldTokens := ti.idTokens[id]
 
 	newTokens := tokens.Elements()
