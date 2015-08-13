@@ -8,9 +8,8 @@ import (
 	"testing"
 
 	"github.com/golangplus/bytes"
-
-	"github.com/daviddengcn/go-assert"
-	"github.com/daviddengcn/go-villa"
+	"github.com/golangplus/strings"
+	"github.com/golangplus/testing/assert"
 )
 
 type DocInfo struct {
@@ -21,14 +20,14 @@ func indexDocs(docs [][2]string) *TokenSetSearcher {
 	sch := &TokenSetSearcher{}
 	for i := range docs {
 		text := docs[i][1]
-		var tokens villa.StrSet
+		var tokens stringsp.Set
 		TokenizeBySeparators(" ,", bytesp.NewPByteSlice([]byte(text)),
 			func(token []byte) error {
-				tokens.Put(string(token))
+				tokens.Add(string(token))
 				return nil
 			})
 
-		fields := map[string]villa.StrSet{
+		fields := map[string]stringsp.Set{
 			"text": tokens,
 		}
 		sch.AddDoc(fields, &DocInfo{
@@ -59,27 +58,27 @@ func TestTokenSetSearcher(t *testing.T) {
 	docs, infos = nil, nil
 	sch.Search(SingleFieldQuery("text", "my"), collector)
 	//fmt.Println("Docs:", docs, "Infos", infos)
-	assert.Equals(t, "len(docs)(my)", len(docs), 2)
+	assert.Equal(t, "len(docs)(my)", len(docs), 2)
 
 	docs, infos = nil, nil
 	sch.Search(SingleFieldQuery("text", "my", "dog"), collector)
 	//fmt.Println("Docs:", docs, "Infos", infos)
-	assert.Equals(t, "len(docs)(my dog)", len(docs), 1)
+	assert.Equal(t, "len(docs)(my dog)", len(docs), 1)
 
 	docs, infos = nil, nil
 	sch.Search(SingleFieldQuery("text", "friend"), collector)
 	//fmt.Println("Docs:", docs, "Infos", infos)
-	assert.Equals(t, "len(docs)(friend)", len(docs), 1)
+	assert.Equal(t, "len(docs)(friend)", len(docs), 1)
 
 	docs = sch.TokenDocList("text", "my")
-	assert.StringEquals(t, "text:To", docs, "[0 1]")
+	assert.StringEqual(t, "text:To", docs, "[0 1]")
 
 	sch.Delete(0)
 
 	docs, infos = nil, nil
 	sch.Search(nil, collector)
 	//fmt.Println("Docs:", docs, "Infos", infos)
-	assert.Equals(t, "len(docs)()", len(docs), 1)
+	assert.Equal(t, "len(docs)()", len(docs), 1)
 
 	var b bytesp.ByteSlice
 	gob.Register(&DocInfo{})
@@ -98,15 +97,15 @@ func TestTokenSetSearcher(t *testing.T) {
 	docs, infos = nil, nil
 	sch.Search(nil, collector)
 	t.Log("Docs:", docs, "Infos", infos)
-	assert.Equals(t, "len(docs)()", len(docs), 1)
+	assert.Equal(t, "len(docs)()", len(docs), 1)
 }
 
 func BenchmarkTokenSetSearcher_1(b *testing.B) {
 	log.Printf("1: %d", b.N)
 	sch := &TokenSetSearcher{}
 	rand.Seed(1)
-	ts0 := map[string]villa.StrSet{"text": villa.NewStrSet("A", "B")}
-	ts1 := map[string]villa.StrSet{"text": villa.NewStrSet("A", "B")}
+	ts0 := map[string]stringsp.Set{"text": stringsp.NewSet("A", "B")}
+	ts1 := map[string]stringsp.Set{"text": stringsp.NewSet("A", "B")}
 	for i := 0; i < 100000; i++ {
 		if rand.Intn(2) == 0 {
 			sch.AddDoc(ts1, i)
@@ -127,8 +126,8 @@ func BenchmarkTokenSetSearcher_2(b *testing.B) {
 	log.Printf("2: %d", b.N)
 	sch := &TokenSetSearcher{}
 	rand.Seed(1)
-	ts0 := map[string]villa.StrSet{"text": villa.NewStrSet("A")}
-	ts1 := map[string]villa.StrSet{"text": villa.NewStrSet("A", "B")}
+	ts0 := map[string]stringsp.Set{"text": stringsp.NewSet("A")}
+	ts1 := map[string]stringsp.Set{"text": stringsp.NewSet("A", "B")}
 	for i := 0; i < 100000; i++ {
 		if rand.Intn(2) == 0 {
 			sch.AddDoc(ts1, i)
@@ -150,8 +149,8 @@ func BenchmarkTokenSetSearcher_10(b *testing.B) {
 	log.Printf("10: %d", b.N)
 	sch := &TokenSetSearcher{}
 	rand.Seed(1)
-	ts0 := map[string]villa.StrSet{"text": villa.NewStrSet("A")}
-	ts1 := map[string]villa.StrSet{"text": villa.NewStrSet("A", "B")}
+	ts0 := map[string]stringsp.Set{"text": stringsp.NewSet("A")}
+	ts1 := map[string]stringsp.Set{"text": stringsp.NewSet("A", "B")}
 	for i := 0; i < 100000; i++ {
 		if rand.Intn(10) == 0 {
 			sch.AddDoc(ts1, i)
@@ -173,8 +172,8 @@ func BenchmarkTokenSetSearcher_1000(b *testing.B) {
 	log.Printf("1000: %d", b.N)
 	sch := &TokenSetSearcher{}
 	rand.Seed(1)
-	ts0 := map[string]villa.StrSet{"text": villa.NewStrSet("A")}
-	ts1 := map[string]villa.StrSet{"text": villa.NewStrSet("A", "B")}
+	ts0 := map[string]stringsp.Set{"text": stringsp.NewSet("A")}
+	ts1 := map[string]stringsp.Set{"text": stringsp.NewSet("A", "B")}
 	for i := 0; i < 100000; i++ {
 		if rand.Intn(1000) == 0 {
 			sch.AddDoc(ts1, i)
@@ -196,8 +195,8 @@ func BenchmarkTokenSetSearcher_100(b *testing.B) {
 	log.Printf("100: %d", b.N)
 	sch := &TokenSetSearcher{}
 	rand.Seed(1)
-	ts0 := map[string]villa.StrSet{"text": villa.NewStrSet("A")}
-	ts1 := map[string]villa.StrSet{"text": villa.NewStrSet("A", "B")}
+	ts0 := map[string]stringsp.Set{"text": stringsp.NewSet("A")}
+	ts1 := map[string]stringsp.Set{"text": stringsp.NewSet("A", "B")}
 	for i := 0; i < 100000; i++ {
 		if rand.Intn(100) == 0 {
 			sch.AddDoc(ts1, i)
@@ -240,5 +239,5 @@ func TestTokenSetSearcher_bug1(t *testing.T) {
 	}
 
 	sch.Search(SingleFieldQuery("text", "c", "b"), collector)
-	assert.StringEquals(t, "docs", docs, "[0 4]")
+	assert.StringEqual(t, "docs", docs, "[0 4]")
 }

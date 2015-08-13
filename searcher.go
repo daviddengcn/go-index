@@ -6,7 +6,7 @@ import (
 	"io"
 	"math/big"
 
-	"github.com/daviddengcn/go-villa"
+	"github.com/golangplus/strings"
 )
 
 var (
@@ -30,7 +30,7 @@ type TokenSetSearcher struct {
 }
 
 // AddDoc indexes a document to the searcher. It returns a local doc id.
-func (s *TokenSetSearcher) AddDoc(fields map[string]villa.StrSet,
+func (s *TokenSetSearcher) AddDoc(fields map[string]stringsp.Set,
 	data interface{}) int32 {
 
 	docID := int32(len(s.docs))
@@ -63,11 +63,11 @@ func (s *TokenSetSearcher) Delete(docID int32) error {
 	return nil
 }
 
-// SingleFieldQuery returns a map[strig]villa.StrSet (same type as query int
+// SingleFieldQuery returns a map[strig]stringsp.Set (same type as query int
 // Search method) with a single field.
-func SingleFieldQuery(field string, tokens ...string) map[string]villa.StrSet {
-	return map[string]villa.StrSet{
-		field: villa.NewStrSet(tokens...),
+func SingleFieldQuery(field string, tokens ...string) map[string]stringsp.Set {
+	return map[string]stringsp.Set{
+		field: stringsp.NewSet(tokens...),
 	}
 }
 
@@ -75,14 +75,14 @@ func SingleFieldQuery(field string, tokens ...string) map[string]villa.StrSet {
 // hit, in the same order as ther were added. If output returns an nonnil error,
 // the search stops, and the error is returned.
 // If no tokens in query, all non-deleted documents are returned.
-func (s *TokenSetSearcher) Search(query map[string]villa.StrSet,
+func (s *TokenSetSearcher) Search(query map[string]stringsp.Set,
 	output func(docID int32, data interface{}) error) error {
 
-	var tokens villa.StrSet
+	var tokens stringsp.Set
 	for fld, tks := range query {
 		for tk := range tks {
 			key := fld + ":" + tk
-			tokens.Put(key)
+			tokens.Add(key)
 		}
 	}
 	if len(tokens) == 0 {
