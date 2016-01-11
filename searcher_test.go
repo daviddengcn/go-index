@@ -21,7 +21,7 @@ func indexDocs(docs [][2]string) *TokenSetSearcher {
 	for i := range docs {
 		text := docs[i][1]
 		var tokens stringsp.Set
-		TokenizeBySeparators(" ,", bytesp.NewPByteSlice([]byte(text)),
+		TokenizeBySeparators(" ,", bytesp.NewPSlice([]byte(text)),
 			func(token []byte) error {
 				tokens.Add(string(token))
 				return nil
@@ -80,7 +80,7 @@ func TestTokenSetSearcher(t *testing.T) {
 	//fmt.Println("Docs:", docs, "Infos", infos)
 	assert.Equal(t, "len(docs)()", len(docs), 1)
 
-	var b bytesp.ByteSlice
+	var b bytesp.Slice
 	gob.Register(&DocInfo{})
 	if err := sch.Save(&b); err != nil {
 		t.Errorf("Save failed: %v", err)

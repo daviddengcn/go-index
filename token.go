@@ -40,7 +40,7 @@ type RuneTypeFunc func(last, current rune) RuneType
 func Tokenize(runeType RuneTypeFunc, in io.RuneReader,
 	output func(token []byte) error) error {
 	last := rune(0)
-	var outBuf bytesp.ByteSlice
+	var outBuf bytesp.Slice
 	for {
 		current, _, err := in.ReadRune()
 		if err != nil {

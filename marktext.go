@@ -18,7 +18,7 @@ func MarkText(text []byte, runeType func(last, current rune) RuneType,
 	tp := runeType(rune(0), r)
 	for {
 		// text is always non-empty here.
-		// r, sz are current rune, and its size. tp is r's RuneType.
+		// r, sz are current rune and its size. tp is r's RuneType.
 		p := 0
 
 		// seperator part, if any

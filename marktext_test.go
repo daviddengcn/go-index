@@ -1,6 +1,7 @@
 package index
 
 import (
+	"io"
 	"testing"
 	"unicode"
 
@@ -8,37 +9,81 @@ import (
 	"github.com/golangplus/testing/assert"
 )
 
-func TestMarkText(t *testing.T) {
-	text := "Hello myFriend"
+func TestMarkText_Empty(t *testing.T) {
+	assert.NoError(t, MarkText(nil, nil, nil, nil, nil))
+}
 
-	var outBuf bytesp.Slice
-	err := MarkText([]byte(text), func(last, current rune) RuneType {
-		if unicode.IsSpace(current) {
-			return TokenSep
-		}
+func TestMarkText_AllSeparators(t *testing.T) {
+	var out bytesp.Slice
+	assert.NoError(t, MarkText([]byte("Hello"), func(last, current rune) RuneType {
+		return TokenSep
+	}, func(token []byte) bool {
+		return true
+	}, func(text []byte) error {
+		out.Write(text)
+		return nil
+	}, func(text []byte) error {
+		out.WriteRune('<')
+		out.Write(text)
+		out.WriteRune('>')
+		return nil
+	}))
+	assert.Equal(t, "out", string(out), "Hello")
+}
 
-		if current >= 'A' && current <= 'Z' {
-			return TokenStart
-		}
+func TestMarkText_OutputError(t *testing.T) {
+	assert.Equal(t, "MarkText", MarkText([]byte("H"), func(last, current rune) RuneType {
+		return TokenSep
+	}, func(token []byte) bool {
+		return true
+	}, func(text []byte) error {
+		return io.EOF
+	}, func(text []byte) error {
+		return nil
+	}), io.EOF)
+	assert.Equal(t, "MarkText", MarkText([]byte("H"), func(last, current rune) RuneType {
+		return TokenBody
+	}, func(token []byte) bool {
+		return false
+	}, func(text []byte) error {
+		return io.EOF
+	}, func(text []byte) error {
+		return nil
+	}), io.EOF)
+}
 
+func TestMarkText_MarkError(t *testing.T) {
+	assert.Equal(t, "MarkText", MarkText([]byte("H"), func(last, current rune) RuneType {
 		return TokenBody
 	}, func(token []byte) bool {
 		return true
 	}, func(text []byte) error {
-		outBuf.Write(text)
 		return nil
 	}, func(text []byte) error {
-		outBuf.WriteRune('<')
-		outBuf.Write(text)
-		outBuf.WriteRune('>')
+		return io.EOF
+	}), io.EOF)
+}
+
+func TestMarkText(t *testing.T) {
+	var out bytesp.Slice
+	assert.NoError(t, MarkText([]byte("Hello myFriend"), func(last, current rune) RuneType {
+		if unicode.IsSpace(current) {
+			return TokenSep
+		}
+		if current >= 'A' && current <= 'Z' {
+			return TokenStart
+		}
+		return TokenBody
+	}, func(token []byte) bool {
+		return true
+	}, func(text []byte) error {
+		out.Write(text)
 		return nil
-	})
-
-	if err != nil {
-		t.Errorf("MarkText failed: %v", err)
-	}
-
-	marked := string(outBuf)
-
-	assert.Equal(t, "marked", marked, "<Hello> <my><Friend>")
+	}, func(text []byte) error {
+		out.WriteRune('<')
+		out.Write(text)
+		out.WriteRune('>')
+		return nil
+	}))
+	assert.Equal(t, "out", string(out), "<Hello> <my><Friend>")
 }
