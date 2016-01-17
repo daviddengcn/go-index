@@ -16,6 +16,10 @@ type DocInfo struct {
 	A string
 }
 
+func init() {
+	gob.Register(&DocInfo{})
+}
+
 func indexDocs(docs [][2]string) *TokenSetSearcher {
 	sch := &TokenSetSearcher{}
 	for i := range docs {
@@ -81,7 +85,6 @@ func TestTokenSetSearcher(t *testing.T) {
 	assert.Equal(t, "len(docs)()", len(docs), 1)
 
 	var b bytesp.Slice
-	gob.Register(&DocInfo{})
 	if err := sch.Save(&b); err != nil {
 		t.Errorf("Save failed: %v", err)
 		return
@@ -98,6 +101,22 @@ func TestTokenSetSearcher(t *testing.T) {
 	sch.Search(nil, collector)
 	t.Log("Docs:", docs, "Infos", infos)
 	assert.Equal(t, "len(docs)()", len(docs), 1)
+}
+
+func BenchmarkTokenSetSearcherIndexing(b *testing.B) {
+	log.Printf("1: %d", b.N)
+	rand.Seed(1)
+	ts0 := map[string]stringsp.Set{"text": stringsp.NewSet("A", "B")}
+	ts1 := map[string]stringsp.Set{"text": stringsp.NewSet("A", "B")}
+	b.ResetTimer()
+	sch := &TokenSetSearcher{}
+	for i := 0; i < b.N; i++ {
+		if rand.Intn(2) == 0 {
+			sch.AddDoc(ts1, i)
+		} else {
+			sch.AddDoc(ts0, i)
+		}
+	}
 }
 
 func BenchmarkTokenSetSearcher_1(b *testing.B) {

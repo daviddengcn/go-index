@@ -29,10 +29,8 @@ type TokenSetSearcher struct {
 	deletedCount int
 }
 
-// AddDoc indexes a document to the searcher. It returns a local doc id.
-func (s *TokenSetSearcher) AddDoc(fields map[string]stringsp.Set,
-	data interface{}) int32 {
-
+// AddDoc indexes a document to the searcher. It returns a local doc ID.
+func (s *TokenSetSearcher) AddDoc(fields map[string]stringsp.Set, data interface{}) int32 {
 	docID := int32(len(s.docs))
 	s.docs = append(s.docs, data)
 	if s.inverted == nil {
@@ -44,7 +42,6 @@ func (s *TokenSetSearcher) AddDoc(fields map[string]stringsp.Set,
 			s.inverted[key] = append(s.inverted[key], docID)
 		}
 	}
-
 	return docID
 }
 
@@ -53,7 +50,6 @@ func (s *TokenSetSearcher) Delete(docID int32) error {
 	if docID < 0 || docID >= int32(len(s.docs)) {
 		return ErrInvalidDocID
 	}
-
 	if s.deleted.Bit(int(docID)) != 0 {
 		// already deleted
 		return nil
@@ -72,12 +68,10 @@ func SingleFieldQuery(field string, tokens ...string) map[string]stringsp.Set {
 }
 
 // Search outputs all documents (docID and associated data) with all tokens
-// hit, in the same order as ther were added. If output returns an nonnil error,
+// hit, in the same order as they were added. If output returns an error,
 // the search stops, and the error is returned.
 // If no tokens in query, all non-deleted documents are returned.
-func (s *TokenSetSearcher) Search(query map[string]stringsp.Set,
-	output func(docID int32, data interface{}) error) error {
-
+func (s *TokenSetSearcher) Search(query map[string]stringsp.Set, output func(docID int32, data interface{}) error) error {
 	var tokens stringsp.Set
 	for fld, tks := range query {
 		for tk := range tks {
@@ -97,27 +91,24 @@ func (s *TokenSetSearcher) Search(query map[string]stringsp.Set,
 		}
 		return nil
 	}
-
 	if len(tokens) == 1 {
 		// for single token, iterating over the inverted list
 		for token := range tokens {
 			for _, docID := range s.inverted[token] {
-				if s.deleted.Bit(int(docID)) == 0 {
-					err := output(docID, s.docs[docID])
-					if err != nil {
-						return err
-					}
+				if s.deleted.Bit(int(docID)) != 0 {
+					continue
+				}
+				if err := output(docID, s.docs[docID]); err != nil {
+					return err
 				}
 			}
 		}
 		return nil
 	}
-
 	N, n := len(s.docs), len(tokens)
 	if N == 0 {
 		return nil
 	}
-
 	mnI := 0
 	invLists := make([][]int32, 0, n)
 	for token := range tokens {
@@ -133,13 +124,11 @@ func (s *TokenSetSearcher) Search(query map[string]stringsp.Set,
 	}
 	// mnI1 is the index next to mnI
 	mnI1 := (mnI + 1) % n
-
 	// gaps is the minimum difference of docID that may cause a skip
 	gaps := make([]int32, n)
 	for i := range invLists {
 		gaps[i] = 2 * int32(N) / int32(len(invLists[i]))
 	}
-
 	// the current indexes in inverted lists
 	idxs := make([]int, n)
 
@@ -172,7 +161,6 @@ mainloop:
 				break mainloop
 			}
 		}
-
 		if invList[idxs[i]] > docID {
 			// move to next docID in mnI list
 			idxs[mnI]++
@@ -188,7 +176,6 @@ mainloop:
 				if err != nil {
 					return err
 				}
-
 				// move to next docID in mnI list
 				idxs[mnI]++
 				if idxs[mnI] == len(invLists[mnI]) {
@@ -213,13 +200,11 @@ func (s *TokenSetSearcher) Save(w io.Writer) error {
 	if err := enc.Encode(len(s.docs)); err != nil {
 		return err
 	}
-
 	for i := range s.docs {
 		if err := enc.Encode(&s.docs[i]); err != nil {
 			return err
 		}
 	}
-
 	if err := enc.Encode(len(s.inverted)); err != nil {
 		return err
 	}
@@ -231,7 +216,6 @@ func (s *TokenSetSearcher) Save(w io.Writer) error {
 			return err
 		}
 	}
-
 	if err := enc.Encode(s.deleted.Bytes()); err != nil {
 		return err
 	}
@@ -251,14 +235,12 @@ func (s *TokenSetSearcher) Load(r io.Reader) error {
 	if err := dec.Decode(&docsLen); err != nil {
 		return err
 	}
-
 	s.docs = make([]interface{}, docsLen)
 	for i := 0; i < docsLen; i++ {
 		if err := dec.Decode(&s.docs[i]); err != nil {
 			return err
 		}
 	}
-
 	var invLen int
 	if err := dec.Decode(&invLen); err != nil {
 		return err
@@ -277,7 +259,6 @@ func (s *TokenSetSearcher) Load(r io.Reader) error {
 			s.inverted[token] = ids
 		}
 	}
-
 	var bytes []byte
 	if err := dec.Decode(&bytes); err != nil {
 		return err
@@ -295,7 +276,6 @@ func (s *TokenSetSearcher) DocInfo(docID int32) interface{} {
 	if docID < 0 || docID >= int32(len(s.docs)) {
 		return ErrInvalidDocID
 	}
-
 	return s.docs[docID]
 }
 
