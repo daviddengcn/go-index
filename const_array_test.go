@@ -4,13 +4,14 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path"
 	"testing"
 
 	"github.com/golangplus/testing/assert"
 )
 
 func TestConstArray_ReadWrteBytes(t *testing.T) {
-	fn := "./TestConstArray_ReadWrteGob"
+	fn := path.Join(os.TempDir(), "./TestConstArray_ReadWrteGob")
 	assert.NoErrorOrDie(t, os.RemoveAll(fn))
 
 	w, err := CreateConstArray(fn)
@@ -40,7 +41,7 @@ func TestConstArray_ReadWrteBytes(t *testing.T) {
 }
 
 func TestConstArray_ReadWrteGob(t *testing.T) {
-	fn := "./TestConstArray_ReadWrteGob"
+	fn := path.Join(os.TempDir(), "./TestConstArray_ReadWrteGob")
 	assert.NoErrorOrDie(t, os.RemoveAll(fn))
 
 	w, err := CreateConstArray(fn)
