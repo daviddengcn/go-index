@@ -66,6 +66,20 @@ func TestConstArray_ReadWrteGob(t *testing.T) {
 		}
 		assert.Equal(t, "s", s, exp)
 	}
+
+	var idxs []int
+	var daList []interface{}
+	assert.NoError(t, arr.ForEachGob(func(idx int, data interface{}) error {
+		idxs = append(idxs, idx)
+		daList = append(daList, data)
+		return nil
+	}))
+	for i := 0; i < N; i++ {
+		exp := fmt.Sprintf("data-%d", i)
+		assert.Equal(t, "idxs[i]", idxs[i], i)
+		assert.Equal(t, "daList[i]", daList[i], exp)
+	}
+
 	assert.NoError(t, arr.Close())
 }
 
