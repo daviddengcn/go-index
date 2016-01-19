@@ -1,33 +1,46 @@
 package index
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"os"
 	"path"
 	"testing"
 
+	"github.com/golangplus/errors"
 	"github.com/golangplus/testing/assert"
 )
 
-func TestConstArray_ReadWrteBytes(t *testing.T) {
-	fn := path.Join(os.TempDir(), "./TestConstArray_ReadWrteGob")
-	assert.NoErrorOrDie(t, os.RemoveAll(fn))
+const N = 3
 
+func createAndOpenBytesArr(t *testing.T, fn string) *ConstArrayReader {
+	assert.NoErrorOrDie(t, os.RemoveAll(fn))
 	w, err := CreateConstArray(fn)
 	assert.NoErrorOrDie(t, err)
-	const N = 100
+
 	for i := 0; i < N; i++ {
 		s := fmt.Sprintf("data-%d", i)
+
 		idx, err := w.AppendBytes([]byte(s))
-		assert.NoError(t, err)
+		assert.NoErrorOrDie(t, err)
+
 		assert.Equal(t, "idx", idx, i)
 	}
-	assert.NoError(t, w.Close())
+	assert.NoErrorOrDie(t, w.Close())
 
 	arr, err := OpenConstArray(fn)
 	assert.NoErrorOrDie(t, err)
 	assert.Equal(t, "len(arr.offsets)", len(arr.offsets), N+1)
+	return arr
+}
+
+func TestConstArray_GetBytes(t *testing.T) {
+	arr := createAndOpenBytesArr(t, path.Join(os.TempDir(), "./TestConstArray_ReadWrteBytes"))
+	defer func() {
+		assert.NoError(t, arr.Close())
+	}()
+
 	for i := 0; i < N; i++ {
 		t.Logf("i = %v", i)
 		exp := fmt.Sprintf("data-%d", i)
@@ -37,27 +50,79 @@ func TestConstArray_ReadWrteBytes(t *testing.T) {
 		}
 		assert.Equal(t, "s", string(bs), exp)
 	}
-	assert.NoError(t, arr.Close())
 }
 
-func TestConstArray_ReadWrteGob(t *testing.T) {
-	fn := path.Join(os.TempDir(), "./TestConstArray_ReadWrteGob")
-	assert.NoErrorOrDie(t, os.RemoveAll(fn))
+func TestConstArray_FetchBytes(t *testing.T) {
+	arr := createAndOpenBytesArr(t, path.Join(os.TempDir(), "./TestConstArray_FetchBytes"))
+	defer func() {
+		assert.NoError(t, arr.Close())
+	}()
 
+	var indexes []int
+	assert.NoError(t, arr.FetchBytes(func(index int, bs []byte) error {
+		indexes = append(indexes, index)
+		exp := fmt.Sprintf("data-%d", index)
+		assert.Equal(t, "s", string(bs), exp)
+		return nil
+	}, 0, 2))
+	assert.Equal(t, "indexes", indexes, []int{0, 2})
+
+	// Check error returned.
+	e := errors.New("inner-error")
+	assert.Equal(t, "error", arr.FetchBytes(func(int, []byte) error {
+		return e
+	}, 0).(*errorsp.ErrorWithStacks).Err, e)
+}
+
+func TestConstArray_ForEachBytes(t *testing.T) {
+	arr := createAndOpenBytesArr(t, path.Join(os.TempDir(), "./TestConstArray_ForEachBytes"))
+	defer func() {
+		assert.NoError(t, arr.Close())
+	}()
+
+	var indexes []int
+	assert.NoError(t, arr.ForEachBytes(func(index int, bs []byte) error {
+		indexes = append(indexes, index)
+		exp := fmt.Sprintf("data-%d", index)
+		assert.Equal(t, "s", string(bs), exp)
+		return nil
+	}))
+	assert.Equal(t, "indexes", indexes, []int{0, 1, 2})
+
+	// Check error returned.
+	e := errors.New("inner-error")
+	assert.Equal(t, "error", arr.ForEachBytes(func(int, []byte) error {
+		return e
+	}).(*errorsp.ErrorWithStacks).Err, e)
+}
+
+func createAndOpenGobArr(t *testing.T, fn string) *ConstArrayReader {
+	assert.NoErrorOrDie(t, os.RemoveAll(fn))
 	w, err := CreateConstArray(fn)
 	assert.NoErrorOrDie(t, err)
-	const N = 100
+
 	for i := 0; i < N; i++ {
 		s := fmt.Sprintf("data-%d", i)
+
 		idx, err := w.AppendGob(s)
-		assert.NoError(t, err)
+		assert.NoErrorOrDie(t, err)
+
 		assert.Equal(t, "idx", idx, i)
 	}
-	assert.NoError(t, w.Close())
+	assert.NoErrorOrDie(t, w.Close())
 
 	arr, err := OpenConstArray(fn)
 	assert.NoErrorOrDie(t, err)
 	assert.Equal(t, "len(arr.offsets)", len(arr.offsets), N+1)
+	return arr
+}
+
+func TestConstArray_GetGob(t *testing.T) {
+	arr := createAndOpenGobArr(t, path.Join(os.TempDir(), "./TestConstArray_ReadWrteGob"))
+	defer func() {
+		assert.NoError(t, arr.Close())
+	}()
+
 	for i := 0; i < N; i++ {
 		t.Logf("i = %v", i)
 		exp := fmt.Sprintf("data-%d", i)
@@ -67,21 +132,50 @@ func TestConstArray_ReadWrteGob(t *testing.T) {
 		}
 		assert.Equal(t, "s", s, exp)
 	}
+}
 
-	var idxs []int
-	var daList []interface{}
-	assert.NoError(t, arr.ForEachGob(func(idx int, data interface{}) error {
-		idxs = append(idxs, idx)
-		daList = append(daList, data)
+func TestConstArray_FetchGob(t *testing.T) {
+	arr := createAndOpenGobArr(t, path.Join(os.TempDir(), "./TestConstArray_ReadWrteGob"))
+	defer func() {
+		assert.NoError(t, arr.Close())
+	}()
+
+	var indexes []int
+	assert.NoError(t, arr.FetchGobs(func(idx int, s interface{}) error {
+		indexes = append(indexes, idx)
+		exp := fmt.Sprintf("data-%d", idx)
+		assert.Equal(t, "s", s, exp)
+		return nil
+	}, 0, 2))
+	assert.Equal(t, "indexes", indexes, []int{0, 2})
+
+	// Check error returned.
+	e := errors.New("inner-error")
+	assert.Equal(t, "error", arr.FetchGobs(func(int, interface{}) error {
+		return e
+	}, 0).(*errorsp.ErrorWithStacks).Err, e)
+}
+
+func TestConstArray_ForEachGob(t *testing.T) {
+	arr := createAndOpenGobArr(t, path.Join(os.TempDir(), "./TestConstArray_ReadWrteGob"))
+	defer func() {
+		assert.NoError(t, arr.Close())
+	}()
+
+	var indexes []int
+	assert.NoError(t, arr.ForEachGob(func(idx int, s interface{}) error {
+		indexes = append(indexes, idx)
+		exp := fmt.Sprintf("data-%d", idx)
+		assert.Equal(t, "s", s, exp)
 		return nil
 	}))
-	for i := 0; i < N; i++ {
-		exp := fmt.Sprintf("data-%d", i)
-		assert.Equal(t, "idxs[i]", idxs[i], i)
-		assert.Equal(t, "daList[i]", daList[i], exp)
-	}
+	assert.Equal(t, "indexes", indexes, []int{0, 1, 2})
 
-	assert.NoError(t, arr.Close())
+	// Check error returned.
+	e := errors.New("inner-error")
+	assert.Equal(t, "error", arr.ForEachGob(func(int, interface{}) error {
+		return e
+	}).(*errorsp.ErrorWithStacks).Err, e)
 }
 
 func BenchmarkConstArrayIndexing(b *testing.B) {

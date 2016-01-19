@@ -5,7 +5,7 @@ import (
 	"testing"
 	"unicode"
 
-	"github.com/daviddengcn/go-assert"
+	"github.com/golangplus/testing/assert"
 )
 
 func TestTokenizer(t *testing.T) {
@@ -34,5 +34,11 @@ func TestTokenizer(t *testing.T) {
 		t.Errorf("Tokenize failed: %v", err)
 	}
 
-	assert.StringEquals(t, "tokens", tokens, "[abc de ' f ghi jk]")
+	assert.StringEqual(t, "tokens", tokens, "[abc de ' f ghi jk]")
+}
+
+func TestSeparatorFRuneTypeFunc(t *testing.T) {
+	f := SeparatorFRuneTypeFunc(unicode.IsSpace)
+	assert.Equal(t, "f", f('a', ' '), TokenSep)
+	assert.Equal(t, "f", f('a', 'a'), TokenBody)
 }

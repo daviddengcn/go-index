@@ -57,13 +57,11 @@ func Tokenize(runeType RuneTypeFunc, in io.RuneReader,
 				outBuf = outBuf[:0]
 			}
 		}
-
 		if tp == TokenStart || tp == TokenBody {
 			outBuf.WriteRune(current)
 		}
 		last = current
 	}
-
 	// finish last, if any
 	if len(outBuf) > 0 {
 		return output([]byte(outBuf))
@@ -73,18 +71,15 @@ func Tokenize(runeType RuneTypeFunc, in io.RuneReader,
 
 // TokenizeBySeparators uses the runes of seps as seprators to
 // tokenize in.
-func TokenizeBySeparators(seps string, in io.RuneReader,
-	output func(token []byte) error) error {
+func TokenizeBySeparators(seps string, in io.RuneReader, output func([]byte) error) error {
 	isSap := make(map[rune]bool)
 	for _, r := range seps {
 		isSap[r] = true
 	}
-
-	return Tokenize(func(last, current rune) RuneType {
+	return Tokenize(func(_, current rune) RuneType {
 		if isSap[current] {
 			return TokenSep
 		}
-
 		return TokenBody
 	}, in, output)
 }
@@ -94,11 +89,10 @@ func TokenizeBySeparators(seps string, in io.RuneReader,
 	which can splits text by separators defined by func IsSeparator.
 */
 func SeparatorFRuneTypeFunc(IsSeparator func(r rune) bool) RuneTypeFunc {
-	return func(last, current rune) RuneType {
+	return func(_, current rune) RuneType {
 		if IsSeparator(current) {
 			return TokenSep
 		}
-
 		return TokenBody
 	}
 }

@@ -89,6 +89,29 @@ func (r *ConstArrayReader) GetBytes(index int) ([]byte, error) {
 	return bs, nil
 }
 
+func (r *ConstArrayReader) FetchBytes(output func(int, []byte) error, indexes ...int) error {
+	df := <-r.dataFiles
+	if df == nil {
+		return nil
+	}
+	defer r.returnDataFile(df)
+
+	for _, index := range indexes {
+		_, err := df.Seek(r.offsets[index], 0)
+		if err != nil {
+			return errorsp.WithStacks(err)
+		}
+		bs := make([]byte, r.offsets[index+1]-r.offsets[index])
+		if _, err := io.ReadFull(df, bs); err != nil {
+			return errorsp.WithStacks(err)
+		}
+		if err := output(index, bs); err != nil {
+			return errorsp.WithStacks(err)
+		}
+	}
+	return nil
+}
+
 func (r *ConstArrayReader) ForEachBytes(output func(int, []byte) error) error {
 	df := <-r.dataFiles
 	if df == nil {
@@ -100,6 +123,17 @@ func (r *ConstArrayReader) ForEachBytes(output func(int, []byte) error) error {
 		return errorsp.WithStacks(err)
 	}
 	for i := 1; i < len(r.offsets); i++ {
+		bs := make([]byte, r.offsets[i]-r.offsets[i-1])
+		n, err := df.Read(bs)
+		if err != nil || n != len(bs) {
+			if err == io.EOF || n != len(bs) {
+				return errorsp.WithStacks(io.ErrUnexpectedEOF)
+			}
+			return errorsp.WithStacks(err)
+		}
+		if err := output(i-1, bs); err != nil {
+			return errorsp.WithStacks(err)
+		}
 	}
 	return nil
 }
@@ -121,6 +155,28 @@ func (r *ConstArrayReader) GetGob(index int) (interface{}, error) {
 	return e, nil
 }
 
+func (r *ConstArrayReader) FetchGobs(output func(int, interface{}) error, indexes ...int) error {
+	df := <-r.dataFiles
+	if df == nil {
+		return nil
+	}
+	defer r.returnDataFile(df)
+
+	for _, index := range indexes {
+		if _, err := df.Seek(r.offsets[index], 0); err != nil {
+			return errorsp.WithStacks(err)
+		}
+		var e interface{}
+		if err := gob.NewDecoder(df).Decode(&e); err != nil {
+			return errorsp.WithStacks(err)
+		}
+		if err := output(index, e); err != nil {
+			return errorsp.WithStacks(err)
+		}
+	}
+	return nil
+}
+
 func (r *ConstArrayReader) ForEachGob(output func(int, interface{}) error) error {
 	df := <-r.dataFiles
 	if df == nil {
@@ -129,16 +185,16 @@ func (r *ConstArrayReader) ForEachGob(output func(int, interface{}) error) error
 	defer r.returnDataFile(df)
 
 	if _, err := df.Seek(0, 0); err != nil {
-		return err
+		return errorsp.WithStacks(err)
 	}
 	dec := gob.NewDecoder(df)
 	for i := 1; i < len(r.offsets); i++ {
 		var e interface{}
 		if err := dec.Decode(&e); err != nil {
-			return err
+			return errorsp.WithStacks(err)
 		}
 		if err := output(i-1, e); err != nil {
-			return err
+			return errorsp.WithStacks(err)
 		}
 	}
 	return nil
