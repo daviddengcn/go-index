@@ -4,7 +4,6 @@ import (
 	"encoding/gob"
 	"errors"
 	"io"
-	"math/big"
 
 	"github.com/golangplus/strings"
 )
@@ -24,9 +23,7 @@ var (
 type TokenSetSearcher struct {
 	docs []interface{}
 	// map from token to list of local IDs(indexes in docs field)
-	inverted     map[string][]int32
-	deleted      big.Int
-	deletedCount int
+	inverted map[string][]int32
 }
 
 // AddDoc indexes a document to the searcher. It returns a local doc ID.
@@ -45,20 +42,6 @@ func (s *TokenSetSearcher) AddDoc(fields map[string]stringsp.Set, data interface
 	return docID
 }
 
-// Delete marks a specified doc as deleted.
-func (s *TokenSetSearcher) Delete(docID int32) error {
-	if docID < 0 || docID >= int32(len(s.docs)) {
-		return ErrInvalidDocID
-	}
-	if s.deleted.Bit(int(docID)) != 0 {
-		// already deleted
-		return nil
-	}
-	s.deleted.SetBit(&s.deleted, int(docID), 1)
-	s.deletedCount++
-	return nil
-}
-
 // SingleFieldQuery returns a map[strig]stringsp.Set (same type as query int
 // Search method) with a single field.
 func SingleFieldQuery(field string, tokens ...string) map[string]stringsp.Set {
@@ -70,7 +53,7 @@ func SingleFieldQuery(field string, tokens ...string) map[string]stringsp.Set {
 // Search outputs all documents (docID and associated data) with all tokens
 // hit, in the same order as they were added. If output returns an error,
 // the search stops, and the error is returned.
-// If no tokens in query, all non-deleted documents are returned.
+// If no tokens in query, all documents are returned.
 func (s *TokenSetSearcher) Search(query map[string]stringsp.Set, output func(docID int32, data interface{}) error) error {
 	var tokens stringsp.Set
 	for fld, tks := range query {
@@ -80,13 +63,10 @@ func (s *TokenSetSearcher) Search(query map[string]stringsp.Set, output func(doc
 		}
 	}
 	if len(tokens) == 0 {
-		// returns all non-deleted documents
+		// returns all documents
 		for docID := range s.docs {
-			if s.deleted.Bit(docID) == 0 {
-				err := output(int32(docID), s.docs[docID])
-				if err != nil {
-					return err
-				}
+			if err := output(int32(docID), s.docs[docID]); err != nil {
+				return err
 			}
 		}
 		return nil
@@ -95,9 +75,6 @@ func (s *TokenSetSearcher) Search(query map[string]stringsp.Set, output func(doc
 		// for single token, iterating over the inverted list
 		for token := range tokens {
 			for _, docID := range s.inverted[token] {
-				if s.deleted.Bit(int(docID)) != 0 {
-					continue
-				}
 				if err := output(docID, s.docs[docID]); err != nil {
 					return err
 				}
@@ -147,14 +124,6 @@ mainloop:
 		}
 		// search for docID
 		for invList[idxs[i]] < docID {
-			idxs[i]++
-			if idxs[i] == len(invList) {
-				// no more docs in invLists[i]
-				break mainloop
-			}
-		}
-		// skip deleted docs
-		for s.deleted.Bit(int(invList[idxs[i]])) != 0 {
 			idxs[i]++
 			if idxs[i] == len(invList) {
 				// no more docs in invLists[i]
@@ -216,12 +185,6 @@ func (s *TokenSetSearcher) Save(w io.Writer) error {
 			return err
 		}
 	}
-	if err := enc.Encode(s.deleted.Bytes()); err != nil {
-		return err
-	}
-	if err := enc.Encode(s.deletedCount); err != nil {
-		return err
-	}
 	return nil
 }
 
@@ -259,15 +222,6 @@ func (s *TokenSetSearcher) Load(r io.Reader) error {
 			s.inverted[token] = ids
 		}
 	}
-	var bytes []byte
-	if err := dec.Decode(&bytes); err != nil {
-		return err
-	}
-	s.deleted.SetBytes(bytes)
-
-	if err := dec.Decode(&(s.deletedCount)); err != nil {
-		return err
-	}
 	return nil
 }
 
@@ -279,14 +233,9 @@ func (s *TokenSetSearcher) DocInfo(docID int32) interface{} {
 	return s.docs[docID]
 }
 
-// DocCount returns the number of (non-deleted) docs.
+// DocCount returns the number of docs.
 func (s *TokenSetSearcher) DocCount() int {
-	return len(s.docs) - s.deletedCount
-}
-
-// DeletedCount returns the number of documents marked as deleted
-func (s *TokenSetSearcher) DeletedCount() int {
-	return s.deletedCount
+	return len(s.docs)
 }
 
 // Returns the docIDs of a speicified token.

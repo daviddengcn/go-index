@@ -50,6 +50,8 @@ func TestTokenSetSearcher(t *testing.T) {
 
 	sch := indexDocs(DOCS)
 
+	assert.Equal(t, "docs[0]", sch.DocInfo(0).(*DocInfo).A, "1 - To friends")
+
 	var docs []int32
 	var infos []*DocInfo
 	collector := func(docID int32, data interface{}) error {
@@ -77,13 +79,6 @@ func TestTokenSetSearcher(t *testing.T) {
 	docs = sch.TokenDocList("text", "my")
 	assert.StringEqual(t, "text:To", docs, "[0 1]")
 
-	sch.Delete(0)
-
-	docs, infos = nil, nil
-	sch.Search(nil, collector)
-	//fmt.Println("Docs:", docs, "Infos", infos)
-	assert.Equal(t, "len(docs)()", len(docs), 1)
-
 	var b bytesp.Slice
 	if err := sch.Save(&b); err != nil {
 		t.Errorf("Save failed: %v", err)
@@ -100,7 +95,7 @@ func TestTokenSetSearcher(t *testing.T) {
 	docs, infos = nil, nil
 	sch.Search(nil, collector)
 	t.Log("Docs:", docs, "Infos", infos)
-	assert.Equal(t, "len(docs)()", len(docs), 1)
+	assert.Equal(t, "len(docs)()", len(docs), 2)
 }
 
 func BenchmarkTokenSetSearcherIndexing(b *testing.B) {
