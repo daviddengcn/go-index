@@ -187,11 +187,11 @@ func (r *ConstArrayReader) ForEachGob(output func(int, interface{}) error) error
 	if _, err := df.Seek(0, 0); err != nil {
 		return errorsp.WithStacks(err)
 	}
-	dec := gob.NewDecoder(df)
 	for i := 1; i < len(r.offsets); i++ {
+		df.Seek(r.offsets[i-1], 0)
 		var e interface{}
-		if err := dec.Decode(&e); err != nil {
-			return errorsp.WithStacks(err)
+		if err := gob.NewDecoder(df).Decode(&e); err != nil {
+			return errorsp.WithStacksAndMessage(err, "decode the %d-th message failed", i-1)
 		}
 		if err := output(i-1, e); err != nil {
 			return errorsp.WithStacks(err)

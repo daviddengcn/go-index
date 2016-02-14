@@ -1,6 +1,7 @@
 package index
 
 import (
+	"encoding/gob"
 	"errors"
 	"fmt"
 	"log"
@@ -176,6 +177,47 @@ func TestConstArray_ForEachGob(t *testing.T) {
 	assert.Equal(t, "error", arr.ForEachGob(func(int, interface{}) error {
 		return e
 	}).(*errorsp.ErrorWithStacks).Err, e)
+}
+
+type Data struct {
+	S string
+}
+
+func init() {
+	gob.Register(Data{})
+}
+
+func TestConstArray_ForEachGob_Struct(t *testing.T) {
+	fn := path.Join(os.TempDir(), "./TestConstArray_ReadWrteGob")
+	assert.NoErrorOrDie(t, os.RemoveAll(fn))
+	w, err := CreateConstArray(fn)
+	assert.NoErrorOrDie(t, err)
+
+	for i := 0; i < N; i++ {
+		s := fmt.Sprintf("data-%d", i)
+
+		idx, err := w.AppendGob(Data{s})
+		assert.NoErrorOrDie(t, err)
+
+		assert.Equal(t, "idx", idx, i)
+	}
+	assert.NoErrorOrDie(t, w.Close())
+
+	arr, err := OpenConstArray(fn)
+	assert.NoErrorOrDie(t, err)
+	assert.Equal(t, "len(arr.offsets)", len(arr.offsets), N+1)
+	defer func() {
+		assert.NoError(t, arr.Close())
+	}()
+
+	var indexes []int
+	assert.NoError(t, arr.ForEachGob(func(idx int, s interface{}) error {
+		indexes = append(indexes, idx)
+		exp := fmt.Sprintf("data-%d", idx)
+		assert.Equal(t, "s", s, Data{exp})
+		return nil
+	}))
+	assert.Equal(t, "indexes", indexes, []int{0, 1, 2})
 }
 
 func BenchmarkConstArrayIndexing(b *testing.B) {
